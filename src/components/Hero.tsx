@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+// 01 · SIGNAL — hero, eyebrow, lede, marquee.
+// The entrance choreography is pure CSS (see globals.css) so it can never
+// freeze mid-state under background-tab throttling.
+
 import { scrollToId } from "@/lib/scroll";
 
 const TICKER = [
@@ -16,42 +18,8 @@ const TICKER = [
 ];
 
 export default function Hero() {
-  const root = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    const ctx = gsap.context(() => {
-      gsap.from(".hero .line-inner", {
-        yPercent: 112,
-        duration: 1.25,
-        stagger: 0.13,
-        ease: "power4.out",
-        delay: 0.2,
-      });
-      gsap.from(".hero .eyebrow > *", {
-        opacity: 0,
-        y: 12,
-        duration: 0.8,
-        stagger: 0.08,
-        delay: 0.1,
-        ease: "power2.out",
-      });
-      gsap.from(".hero .lede > *", {
-        opacity: 0,
-        y: 18,
-        duration: 0.9,
-        stagger: 0.1,
-        delay: 0.75,
-        ease: "power3.out",
-      });
-      gsap.from(".marquee", { opacity: 0, duration: 1.2, delay: 1.1 });
-    }, el);
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <div ref={root} id="signal">
+    <div id="signal">
       <div className="hero wide">
         <div className="eyebrow">
           <span className="mono">01 / SIGNAL</span>

@@ -41,6 +41,11 @@ export function initSmoothScroll(): () => void {
   });
   lenis = instance;
 
+  // QA / demo handle for programmatic scroll choreography
+  if (typeof window !== "undefined") {
+    (window as unknown as Record<string, unknown>).__LENIS = instance;
+  }
+
   const onScroll = () => ScrollTrigger.update();
   instance.on("scroll", onScroll);
 
@@ -61,10 +66,9 @@ export function reveal(root: HTMLElement | null) {
   if (!root) return;
   const targets = root.querySelectorAll("[data-reveal]");
   if (targets.length === 0) return;
-  gsap.from(targets, {
-    y: 30,
-    opacity: 0,
-    duration: 0.95,
+  const tween = gsap.from(targets, {
+    y: 26,
+    duration: 0.9,
     stagger: 0.07,
     ease: "power3.out",
     scrollTrigger: {
@@ -73,4 +77,18 @@ export function reveal(root: HTMLElement | null) {
       once: true,
     },
   });
+
+  // Refresh-safe reveal: transform-only (never opacity), so even a fully
+  // rAF-throttled/occluded tab can't hide content — worst case a card sits
+  // 26 px low until it settles. Floor: complete + clean on a timer too.
+  const finalize = () => {
+    const st = (tween as unknown as { scrollTrigger?: { kill(a?: boolean): void } }).scrollTrigger;
+    st?.kill(false);
+    tween.kill();
+    gsap.set(targets, { clearProps: "all" });
+  };
+
+  const finish = window.setTimeout(finalize, 4500);
+  const clear = () => window.clearTimeout(finish);
+  tween.eventCallback("onComplete", clear);
 }

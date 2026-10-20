@@ -101,15 +101,23 @@ export default function LineSection() {
     if (!frame) return;
     const ctx = gsap.context(() => {
       gsap.from(frame, {
-        scale: 0.96,
-        opacity: 0.4,
+        scale: 0.94,
         transformOrigin: "50% 60%",
         duration: 1.2,
         ease: "power3.out",
         scrollTrigger: { trigger: frame, start: "top 88%", once: true },
       });
     });
-    return () => ctx.revert();
+    // timer floor: settle regardless of rAF starvation or later refreshes
+    const finalize = () => {
+      ctx.revert();
+      gsap.set(frame, { clearProps: "all" });
+    };
+    const finish = setTimeout(finalize, 4500);
+    return () => {
+      clearTimeout(finish);
+      ctx.revert();
+    };
   }, []);
 
   // ── captions: live event stream with idle fallback ──────────

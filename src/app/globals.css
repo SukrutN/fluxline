@@ -192,14 +192,19 @@ body::after {
 
 .rail {
   position: fixed;
-  left: clamp(16px, 2.4vw, 40px);
+  left: clamp(10px, 1.6vw, 22px);
   top: 50%;
   transform: translateY(-50%);
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  mix-blend-mode: difference;
+  gap: 2px;
+  padding: 12px 10px;
+  background: color-mix(in srgb, var(--paper) 85%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--rule) 70%, transparent);
+  border-radius: 999px;
   pointer-events: auto;
 }
 .rail button {
@@ -207,29 +212,39 @@ body::after {
   cursor: pointer;
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.16em;
-  color: #ededed;
-  opacity: 0.45;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  opacity: 0.42;
+  transition: opacity 0.25s ease;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 5px 6px;
+  white-space: nowrap;
 }
 .rail button:hover {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 .rail button.active {
   opacity: 1;
 }
 .rail button .dot {
-  width: 8px;
-  height: 8px;
-  border: 1px solid #ededed;
+  width: 7px;
+  height: 7px;
+  border: 1px solid currentColor;
   border-radius: 50%;
   transform: scale(0.8);
+  flex: none;
 }
 .rail button.active .dot {
-  background: #ededed;
+  background: var(--amber);
+  border-color: var(--amber);
+}
+.rail button .lbl {
+  display: none;
+}
+.rail:hover button .lbl {
+  display: inline;
 }
 
 /* ── hero ───────────────────────────────────────────────────── */
@@ -280,6 +295,46 @@ body::after {
 .hero .cta:hover {
   background: var(--ink);
   color: var(--paper);
+}
+
+/* hero entrance — CSS wall-clock animations (survive rAF/timer starvation;
+   fill:both freeze at the final, fully-visible state — no courtesy for
+   background throttling, nothing can stick hidden) */
+@keyframes flx-rise {
+  from { transform: translateY(112%); }
+  to { transform: translateY(0); }
+}
+@keyframes flx-fade {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.hero .line-inner {
+  animation: flx-rise 1.2s cubic-bezier(0.19, 0.8, 0.22, 1) both;
+}
+.hero .display > span:nth-of-type(2) .line-inner {
+  animation-delay: 0.38s;
+}
+.hero .eyebrow > * {
+  animation: flx-fade 0.7s ease-out both;
+}
+.hero .eyebrow > *:nth-child(2) { animation-delay: 0.12s; }
+.hero .eyebrow > *:nth-child(3) { animation-delay: 0.24s; }
+.hero .lede > * {
+  animation: flx-fade 0.8s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.hero .lede > p { animation-delay: 0.9s; }
+.hero .lede .cta { animation-delay: 1.05s; }
+.marquee {
+  animation: flx-fade 1s ease-out both;
+  animation-delay: 1.25s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero .line-inner,
+  .hero .eyebrow > *,
+  .hero .lede > *,
+  .marquee {
+    animation: none !important;
+  }
 }
 
 /* marquee */

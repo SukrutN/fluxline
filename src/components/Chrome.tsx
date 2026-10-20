@@ -87,7 +87,7 @@ export default function Chrome() {
             aria-current={active === c.id ? "true" : undefined}
           >
             <span className="dot" />
-            {c.num}&nbsp;&nbsp;{c.label}
+            {c.num}&nbsp;<span className="lbl">{c.label}</span>
           </button>
         ))}
       </nav>
