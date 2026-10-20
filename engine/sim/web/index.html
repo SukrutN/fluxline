@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fluxline · host block control room</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2028%2028'%3E%3Crect%20width='28'%20height='28'%20fill='%23171410'/%3E%3Ctext%20x='14'%20y='20'%20font-family='Helvetica%20Neue%2C%20Segoe UI%2C%20sans-serif'%20font-size='15'%20font-weight='700'%20fill='%23ff7f24'%20text-anchor='middle'%3EF%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --paper: #f2ede3;
+    --ink: #171410;
+    --muted: #6f6759;
+    --rule: #d8d0bf;
+    --rule-dark: #3a352c;
+    --amber: #ff7f24;
+    --steel: #46584f;
+    --ok: #3e7d4e;
+    --danger: #c8452c;
+    --card: #f7f3ea;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Helvetica Neue", "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 24px;
+    background: rgba(242, 237, 227, 0.95);
+    border-bottom: 1px solid var(--rule);
+    backdrop-filter: blur(6px);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand h1 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+  .brand .sub { display: block; font-size: 11px; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; }
+  .health { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #9aa0a6; flex: none; }
+  .dot.up { background: var(--ok); }
+  .dot.down { background: var(--danger); }
+
+  /* The token slot appears only when the engine refuses without one. */
+  .token-slot { display: flex; align-items: center; gap: 8px; }
+  .token-slot input {
+    width: 160px;
+    padding: 6px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+  .token-slot button {
+    border: 1px solid var(--rule-dark);
+    border-radius: 2px;
+    background: var(--rule-dark);
+    color: var(--paper);
+    font: inherit;
+    font-size: 12px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 32px 24px 64px; }
+  .intro { max-width: 780px; margin: 0 0 28px; }
+  .intro p { margin: 6px 0; font-size: 17px; }
+  .intro .note { color: var(--muted); font-size: 14px; }
+
+  .layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 920px) { .layout { grid-template-columns: 1fr; } }
+
+  aside.panel { background: var(--card); border: 1px solid var(--rule); border-radius: 2px; padding: 20px; position: sticky; top: 76px; }
+  @media (max-width: 920px) { aside.panel { position: static; } }
+  aside.panel h2 { margin: 22px 0 4px; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  aside.panel h2:first-child { margin-top: 0; }
+  aside.panel .hint { margin: 0 0 10px; font-size: 13px; color: var(--muted); }
+
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+  select, input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+  }
+  select:focus, input:focus, button:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+
+  .check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink); margin: 10px 0 0; }
+  .check input { width: auto; }
+
+  .btn {
+    display: inline-block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--rule-dark);
+    border-radius: 2px;
+    background: var(--rule-dark);
+    color: var(--paper);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .btn:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); }
+  .btn:disabled { opacity: 0.55; cursor: wait; }
+  .btn--ghost { background: transparent; color: var(--ink); }
+  .btn--ghost:hover:not(:disabled) { background: rgba(23, 20, 16, 0.06); }
+
+  #results section, #bench section { scroll-margin-top: 84px; }
+  .empty { border: 1px dashed var(--rule); border-radius: 2px; padding: 32px 24px; color: var(--muted); font-size: 14px; text-align: center; }
+  .error { display: none; margin: 0 0 20px; padding: 14px 16px; border: 1px solid rgba(200, 69, 44, 0.4); border-left: 4px solid var(--danger); border-radius: 2px; background: rgba(200, 69, 44, 0.05); }
+  .error.show { display: block; }
+  .error .title { font-weight: 700; margin: 0 0 4px; }
+  .error ul { margin: 6px 0 0; padding-left: 20px; font-size: 13px; }
+
+  .statusline { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+  .statusline b { color: var(--ink); font-weight: 600; }
+  .chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid;
+    font-weight: 700;
+  }
+  .chip--armed { color: var(--steel); border-color: rgba(70, 88, 79, 0.6); background: rgba(70, 88, 79, 0.1); }
+  .chip--accepted { color: var(--ok); border-color: rgba(62, 125, 78, 0.6); background: rgba(62, 125, 78, 0.1); }
+  .chip--vetoed { color: var(--amber); border-color: rgba(255, 127, 36, 0.7); background: rgba(255, 127, 36, 0.12); }
+  .chip--refused, .chip--expired { color: var(--danger); border-color: rgba(200, 69, 44, 0.6); background: rgba(200, 69, 44, 0.08); }
+  .chip--host { color: var(--steel); border-color: var(--rule); }
+  .chip--line { color: var(--ink); border-color: var(--rule); }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 2px; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  th { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td .sub { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .journal { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+  .journal li { display: flex; gap: 10px; align-items: baseline; padding: 6px 10px; border-bottom: 1px solid var(--rule); }
+  .journal li:last-child { border-bottom: none; }
+  .journal .t { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; flex: none; width: 64px; text-align: right; }
+  .journal .what { color: var(--ink); }
+
+  .block { margin: 30px 0; }
+  .block > h2 { margin: 0 0 4px; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .block > .blurb { margin: 0 0 12px; font-size: 13px; color: var(--muted); max-width: 660px; }
+
+  .hist { display: flex; align-items: flex-end; gap: 6px; margin: 8px 0 4px; height: 120px; padding: 0 2px; }
+  .hist .bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; min-width: 0; }
+  .hist .bar .fill { width: 100%; background: var(--steel); border-radius: 1px 1px 0 0; }
+  .hist .bar .n { font-size: 12px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .hist .bar .lbl { font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 18px 0; }
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: 2px; padding: 13px 15px; }
+  .card .k { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .card .v { margin-top: 4px; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
+  .card .s { margin-top: 2px; font-size: 12px; color: var(--muted); }
+
+  footer.site { border-top: 1px solid var(--rule); padding: 20px 24px 32px; font-size: 12px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Fluxline</h1>
+    <span class="sub">host block control room</span>
+  </div>
+  <div class="health">
+    <span class="dot" id="healthDot"></span>
+    <span id="healthText">checking the engine</span>
+  </div>
+  <div class="token-slot" id="tokenSlot" hidden>
+    <label for="token" style="font-size:12px;color:var(--muted)">Engine token</label>
+    <input type="password" id="token" autocomplete="off" placeholder="paste the token">
+    <button type="button" id="tokenUse">Unlock</button>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <p>Write the command block, run the scan, and read the ack words back. The veto, the watchdog, and the refusal paths are all here, driven against the same host block model the offline tests lock.</p>
+    <p class="note">This control room runs engine/sim/hostblock.py, the scan-exact reference model of the ST host block. Line 01 and its shift are fictional; the model and its figures are real.</p>
+  </div>
+
+  <div class="layout">
+    <aside class="panel">
+      <h2>The command block</h2>
+      <p class="hint">What the host writes. The command rides the next scan; the law decides at the load cell.</p>
+      <label for="cSeq">CMD_SEQ</label>
+      <input type="number" id="cSeq" value="1" min="1" max="32000">
+      <label for="cCode">CMD_CODE</label>
+      <select id="cCode">
+        <option value="release-override">release-override</option>
+        <option value="per-law">per-law</option>
+      </select>
+      <div class="pair">
+        <div>
+          <label for="cGate">CMD_GATE</label>
+          <select id="cGate">
+            <option value="1">1 · L01</option>
+            <option value="2">2 · L02</option>
+            <option value="3">3 · L03</option>
+            <option value="4">4 · RJ</option>
+          </select>
+        </div>
+        <div>
+          <label for="cClass">CMD_CLASS</label>
+          <select id="cClass">
+            <option value="0">0 · any</option>
+            <option value="1">1 · standard</option>
+            <option value="2">2 · metal</option>
+            <option value="3">3 · tall</option>
+          </select>
+        </div>
+      </div>
+      <div class="check">
+        <input type="checkbox" id="cWrite" checked>
+        <label for="cWrite" style="margin:0">Write this command on the first scan of the burst</label>
+      </div>
+
+      <h2>The line</h2>
+      <p class="hint">What the floor publishes. A piece at the cell resolves an armed command.</p>
+      <label for="lState">Line state</label>
+      <select id="lState">
+        <option value="RUN">RUN</option>
+        <option value="IDLE">IDLE</option>
+        <option value="INIT">INIT</option>
+        <option value="JAM">JAM</option>
+        <option value="ESTOP">ESTOP</option>
+      </select>
+      <label for="lClass">Piece at the load cell</label>
+      <select id="lClass">
+        <option value="">none this burst</option>
+        <option value="1">class 1 · standard</option>
+        <option value="2">class 2 · metal</option>
+        <option value="3">class 3 · tall</option>
+      </select>
+      <label for="lFlight">Pieces in flight</label>
+      <input type="number" id="lFlight" value="1" min="0" max="32000">
+      <div class="check">
+        <input type="checkbox" id="lDrop">
+        <label for="lDrop" style="margin:0">Drop the heartbeat (watchdog test)</label>
+      </div>
+
+      <button class="btn" id="oneBtn" type="button">Run one scan</button>
+      <button class="btn" id="tenBtn" type="button">Run sixty scans</button>
+      <button class="btn btn--ghost" id="resetBtn" type="button">Reset the block</button>
+    </aside>
+
+    <section id="results">
+      <div class="error" id="error" role="alert"></div>
+      <div class="empty" id="empty">
+        The block is at boot. Write a command, run a scan, and the registers
+        and the event journal will render here.
+      </div>
+      <div id="report" hidden>
+        <div class="statusline" id="statusline"></div>
+        <div class="table-scroll"><table id="regTable"></table></div>
+        <section class="block">
+          <h2>The event journal</h2>
+          <p class="blurb">Every ack write since the reset, newest first. A veto means the law overruled the ask; an expiry means the host went stale with a command armed.</p>
+          <ul class="journal" id="journal"></ul>
+        </section>
+      </div>
+
+      <section class="block" id="benchBlock">
+        <h2>The seeded shift</h2>
+        <p class="blurb">The bench drives the same model through a scripted shift: twenty pieces, twelve releases, one veto. Run it and read the latency, the verdicts, and the wire words it leaves behind.</p>
+        <button class="btn" id="benchBtn" type="button" style="width:auto">Run the bench</button>
+        <div id="benchReport" hidden>
+          <div class="cards" id="benchCards"></div>
+          <section class="block">
+            <h2>Release to divert</h2>
+            <p class="blurb" id="benchLatencyNote"></p>
+            <div class="hist" id="hist"></div>
+            <div class="table-scroll" style="margin-top:12px"><table id="samplesTable"></table></div>
+          </section>
+          <section class="block">
+            <h2>The walkthrough</h2>
+            <p class="blurb">The veto and the last ask, scan by scan, in the bench's own words.</p>
+            <ul class="journal" id="walkthrough"></ul>
+          </section>
+        </div>
+      </section>
+    </section>
+  </div>
+</main>
+
+<footer class="site">
+  <p>Line 01 is a fictional worked shift. The host block model and its figures are real. Built by Sukrut Nadigotti.</p>
+</footer>
+
+<script>
+"use strict";
+
+// Every dynamic string is escaped before it reaches innerHTML.
+function esc(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function setHealth(up, text) {
+  document.getElementById("healthDot").className = "dot " + (up ? "up" : "down");
+  document.getElementById("healthText").textContent = text;
+}
+
+function busy(button, on, label) {
+  button.disabled = on;
+  button.textContent = on ? label : button.dataset.label;
+}
+
+function clearError() {
+  var box = document.getElementById("error");
+  box.className = "error";
+  box.textContent = "";
+}
+
+function showError(title, reasons) {
+  var box = document.getElementById("error");
+  var list = "";
+  if (reasons && reasons.length) {
+    list = "<ul>" + reasons.map(function (r) { return "<li>" + esc(r) + "</li>"; }).join("") + "</ul>";
+  }
+  box.innerHTML = "<p class='title'>" + esc(title) + "</p>" + list;
+  box.className = "error show";
+}
+
+function call(path, body) {
+  var headers = body ? { "content-type": "application/json" } : undefined;
+  var token = sessionStorage.getItem("fluxline-token");
+  if (token) {
+    headers = headers || {};
+    headers.authorization = "Bearer " + token;
+  }
+  return fetch(path, body ? {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(body)
+  } : (headers ? { headers: headers } : undefined)).then(function (response) {
+    setHealth(true, "engine reachable");
+    var retryAfter = response.headers.get("retry-after");
+    return response.json().catch(function () { throw { unparseable: true }; }).then(function (json) {
+      if (!response.ok) {
+        throw { problem: json, status: response.status, retryAfter: retryAfter };
+      }
+      return json;
+    });
+  }).catch(function (error) {
+    if (error && (error.problem !== undefined || error.unparseable)) {
+      throw error;
+    }
+    setHealth(false, "engine unreachable");
+    throw { problem: null };
+  });
+}
+
+function reportProblem(state) {
+  if (state && state.status === 401) {
+    document.getElementById("tokenSlot").hidden = false;
+    document.getElementById("token").focus();
+    showError("The engine asks for a token.",
+      ["Paste the engine's token in the header above, then run the request again."]);
+    return;
+  }
+  if (state && state.status === 429 && state.retryAfter) {
+    showError("Too many requests. Try again in " + state.retryAfter + " seconds.",
+      ["The engine is limiting this client's requests."]);
+    return;
+  }
+  if (state && state.unparseable) {
+    showError("The engine returned a response this page could not read.", []);
+    return;
+  }
+  if (state && state.problem) {
+    showError(state.problem.title || "The engine refused the request.",
+      [state.problem.detail].concat(state.problem.reasons || []).filter(Boolean));
+    return;
+  }
+  showError("The engine could not be reached. Check that the control room process is running, then try again.", []);
+}
+
+function chipFor(event) {
+  return "<span class='chip chip--" + esc(event) + "'>" + esc(event) + "</span>";
+}
+
+function scan(count) {
+  var command = null;
+  if (document.getElementById("cWrite").checked) {
+    command = {
+      seq: Number(document.getElementById("cSeq").value),
+      code: document.getElementById("cCode").value,
+      gate: Number(document.getElementById("cGate").value),
+      class: Number(document.getElementById("cClass").value)
+    };
+    if (!Number.isFinite(command.seq) || command.seq < 1) {
+      showError("CMD_SEQ must be a whole number from 1 to 32000 before the scan can run.", []);
+      return;
+    }
+  }
+  var lcRaw = document.getElementById("lClass").value;
+  var body = {
+    count: count,
+    state: document.getElementById("lState").value,
+    dropHeartbeat: document.getElementById("lDrop").checked,
+    inFlight: Number(document.getElementById("lFlight").value) || 0,
+    command: command,
+    lcClass: lcRaw === "" ? null : Number(lcRaw)
+  };
+  var button = count === 1
+    ? document.getElementById("oneBtn")
+    : document.getElementById("tenBtn");
+  clearError();
+  busy(button, true, "Running the scans...");
+  call("/v1/scan", body).then(function (reading) {
+    try {
+      renderReading(reading);
+      // The next command needs a fresh tag: the edge detector keys on CMD_SEQ.
+      if (command) {
+        document.getElementById("cSeq").value = command.seq + 1;
+        // One write per check: a burst that follows (a piece at the cell,
+        // say) should not silently carry the next command with it.
+        document.getElementById("cWrite").checked = false;
+      }
+    } catch (renderFailure) {
+      showError("The engine returned a reading this page could not display. The raw response is in the browser console.", []);
+      console.error(renderFailure, reading);
+    }
+  }).catch(function (state) {
+    reportProblem(state);
+  }).finally(function () {
+    busy(button, false, null);
+  });
+}
+
+function renderReading(reading) {
+  if (!reading || typeof reading !== "object" || !reading.registers) {
+    throw new Error("unexpected reading shape");
+  }
+  document.getElementById("empty").hidden = true;
+  document.getElementById("report").hidden = false;
+
+  var registers = reading.registers;
+  var order = ["HB_HOST", "CMD_SEQ", "CMD_CODE", "CMD_GATE", "CMD_CLASS",
+               "ACK_SEQ", "ACK_STATE", "ACK_GATE", "ACK_CLASS",
+               "HOST_STATE", "IN_FLIGHT", "HOST_ACKS"];
+  var rows = order.map(function (name) {
+    var register = registers[name] || {};
+    var value = register.value === null || register.value === undefined ? "n/a" : String(register.value);
+    if (name === "ACK_STATE" && value !== "n/a") {
+      value = value + " · " + esc(register.note);
+    }
+    var writer = name.indexOf("CMD_") === 0 || name === "HB_HOST" ? "host" : "line";
+    return "<tr><td class='mono'>" + esc(register.addr || "") + "</td>" +
+      "<td><b>" + esc(name) + "</b><span class='sub'>" + esc(register.note || "") + "</span></td>" +
+      "<td class='num'>" + value + "</td>" +
+      "<td><span class='chip chip--" + writer + "'>" + writer + "</span></td></tr>";
+  }).join("");
+  document.getElementById("regTable").innerHTML =
+    "<thead><tr><th>addr</th><th>word</th><th class='num'>value</th><th>writer</th></tr></thead><tbody>" + rows + "</tbody>";
+
+  var ackState = registers.ACK_STATE ? registers.ACK_STATE.value : 0;
+  var ackName = registers.ACK_STATE && registers.ACK_STATE.note ? registers.ACK_STATE.note : "armed";
+  document.getElementById("statusline").innerHTML =
+    "<span>scans run <b class='mono'>" + esc(reading.scans) + "</b></span>" +
+    "<span>each scan <b class='mono'>" + esc(reading.scanS) + " s</b></span>" +
+    "<span>watchdog <b class='mono'>" + esc(reading.watchdogS) + " s</b></span>" +
+    "<span>command " + (reading.armed ? chipFor("armed") : "<b>resolved</b>") + "</span>" +
+    "<span>host " + (reading.hostLive
+      ? "<b>live</b>"
+      : (reading.hostSeen ? "<b>stale</b>" : "<b>awaiting the first heartbeat</b>")) + "</span>" +
+    "<span>ack " + chipFor(ackName) + "</span>" +
+    (reading.alarmHostBit ? "<span>" + chipFor("refused") + " alarm bit 5 HOST_STALE</span>" : "");
+
+  var journal = reading.journal || [];
+  document.getElementById("journal").innerHTML = journal.length
+    ? journal.map(function (event) {
+        return "<li><span class='t'>" + esc(event.t_s) + " s</span>" +
+          chipFor(event.event) +
+          "<span class='what mono'>seq " + esc(event.seq) + " · gate " + esc(event.gate) + " · class " + esc(event.class) + "</span></li>";
+      }).join("")
+    : "<li><span class='t'></span><span class='what' style='color:var(--muted)'>No ack writes yet. Write a command and run a scan.</span></li>";
+}
+
+function resetBlock() {
+  clearError();
+  busy(document.getElementById("resetBtn"), true, "Resetting...");
+  call("/v1/reset", {}).then(function (reading) {
+    renderReading(reading);
+    document.getElementById("cSeq").value = 1;
+  }).catch(function (state) {
+    reportProblem(state);
+  }).finally(function () {
+    busy(document.getElementById("resetBtn"), false, null);
+  });
+}
+
+// The bench: ASCII arrows and dashes set as the site sets them.
+function set(text) {
+  return String(text).replaceAll(" -> ", " → ").replaceAll(" - ", ": ");
+}
+
+function runBench() {
+  clearError();
+  busy(document.getElementById("benchBtn"), true, "Running the shift...");
+  call("/v1/bench").then(function (figures) {
+    try {
+      renderBench(figures);
+    } catch (renderFailure) {
+      showError("The bench returned figures this page could not display. The raw response is in the browser console.", []);
+      console.error(renderFailure, figures);
+    }
+  }).catch(function (state) {
+    reportProblem(state);
+  }).finally(function () {
+    busy(document.getElementById("benchBtn"), false, null);
+  });
+}
+
+function renderBench(figures) {
+  if (!figures || !figures.meta || !figures.latency) {
+    throw new Error("unexpected bench shape");
+  }
+  var meta = figures.meta;
+  var latency = figures.latency;
+  document.getElementById("benchReport").hidden = false;
+
+  document.getElementById("benchCards").innerHTML =
+    benchCard("Pieces", meta.pieces, "the scripted batch") +
+    benchCard("Releases", meta.releases, "host commands served") +
+    benchCard("Accepted", figures.verdicts.accepted || 0, "asks the law confirmed") +
+    benchCard("Vetoed", figures.verdicts.vetoed || 0, "asks the law overruled") +
+    benchCard("Mean release to divert", latency.mean_ms / 1000 + " s",
+      "min " + (latency.min_ms / 1000) + " s, max " + (latency.max_ms / 1000) + " s");
+
+  document.getElementById("benchLatencyNote").textContent =
+    meta.latency_note + " Watchdog " + meta.watchdog_s + " s, scan " + meta.scan_ms + " ms, belt " + meta.belt_mms + " mm/s.";
+
+  var maxCount = Math.max.apply(null, latency.buckets.map(function (b) { return b.count; }).concat([1]));
+  document.getElementById("hist").innerHTML = latency.buckets.map(function (b) {
+    var height = Math.round((b.count / maxCount) * 80);
+    return "<div class='bar'><span class='n'>" + esc(b.count) + "</span>" +
+      "<div class='fill' style='height:" + Math.max(height, b.count ? 4 : 0) + "px'></div>" +
+      "<span class='lbl'>" + esc(b.label) + "</span></div>";
+  }).join("");
+
+  var rows = latency.samples.map(function (s) {
+    return "<tr><td class='mono'>" + esc(s.id) + "</td><td>" + esc(s.kind) + "</td>" +
+      "<td>" + chipFor(s.state) + "</td>" +
+      "<td class='num'>" + esc(s.ask) + " to " + esc(s.gate) + "</td>" +
+      "<td class='num'>" + esc(s.release_to_verdict_ms) + "</td>" +
+      "<td class='num'>" + esc(s.verdict_to_divert_ms) + "</td>" +
+      "<td class='num'>" + esc(s.release_to_divert_ms) + "</td></tr>";
+  }).join("");
+  document.getElementById("samplesTable").innerHTML =
+    "<thead><tr><th>piece</th><th>kind</th><th>verdict</th><th class='num'>ask to gate</th>" +
+    "<th class='num'>to verdict (ms)</th><th class='num'>to divert (ms)</th><th class='num'>total (ms)</th></tr></thead><tbody>" + rows + "</tbody>";
+
+  document.getElementById("walkthrough").innerHTML = figures.walkthrough.map(function (row) {
+    return "<li><span class='t'>" + esc(row.t_s) + " s</span>" +
+      "<span class='chip chip--" + (row.who === "host" ? "host" : row.who === "line" ? "line" : "accepted") + "'>" + esc(row.who) + "</span>" +
+      "<span class='what mono'>" + esc(set(row.what)) + "</span></li>";
+  }).join("");
+}
+
+function benchCard(key, value, sub) {
+  return "<div class='card'><div class='k'>" + esc(key) + "</div><div class='v'>" + esc(value) + "</div><div class='s'>" + esc(sub) + "</div></div>";
+}
+
+document.getElementById("oneBtn").dataset.label = "Run one scan";
+document.getElementById("tenBtn").dataset.label = "Run sixty scans";
+document.getElementById("resetBtn").dataset.label = "Reset the block";
+document.getElementById("benchBtn").dataset.label = "Run the bench";
+
+document.getElementById("oneBtn").addEventListener("click", function () { scan(1); });
+document.getElementById("tenBtn").addEventListener("click", function () { scan(60); });
+document.getElementById("resetBtn").addEventListener("click", resetBlock);
+document.getElementById("benchBtn").addEventListener("click", runBench);
+
+// --- The token slot: shown only when the engine asks for one. ---
+
+function useToken() {
+  var value = document.getElementById("token").value.trim();
+  if (!value) return;
+  sessionStorage.setItem("fluxline-token", value);
+  document.getElementById("tokenSlot").hidden = true;
+  document.getElementById("token").value = "";
+  resetBlock();
+}
+document.getElementById("tokenUse").addEventListener("click", useToken);
+document.getElementById("token").addEventListener("keydown", function (event) {
+  if (event.key === "Enter") useToken();
+});
+
+fetch("/health").then(function (response) {
+  setHealth(response.ok, response.ok ? "engine reachable" : "engine unreachable");
+}).catch(function () {
+  setHealth(false, "engine unreachable");
+});
+
+// Opening the control room means taking the block from boot: a stale session
+// from a previous page would leave old CMD_SEQ edges and an old journal.
+call("/v1/reset", {}).then(function (reading) {
+  renderReading(reading);
+  document.getElementById("cSeq").value = 1;
+}).catch(function (state) {
+  // The engine is reachable but refused, or unreachable: both are worth
+  // saying, and a token refusal shows the unlock slot.
+  reportProblem(state);
+});
+</script>
+</body>
+</html>
