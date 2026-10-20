@@ -20,7 +20,7 @@ const CARDS: Array<{
     num: "01",
     name: "Photo-Eye Signal",
     copy:
-      "An infrared beam breaks; the piece is registered, stamped FLX-#### and entered into the ledger. Nothing moves on this line unnamed.",
+      "An infrared beam crosses the belt. Break it and the piece gets named — FLX-0001, FLX-0002, all the way down. Nothing rides the line without a number.",
     rule: "SENSE · REGISTRY",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -38,7 +38,7 @@ const CARDS: Array<{
     num: "02",
     name: "Height Profile",
     copy:
-      "A light curtain sweeps crown to root. Anything over 165 mm is held for the oversize lane before any other rule gets a say.",
+      "A light curtain sweeps the piece top to bottom. Anything past 165 mm is tall, and tall goes straight to the oversize lane — that rule beats everything after it.",
     rule: "TALL → L03 OVERSIZE",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -55,7 +55,7 @@ const CARDS: Array<{
     num: "03",
     name: "Inductive Tag",
     copy:
-      "An eddy probe listens beneath the belt. Ferrous kin answer with a signature and are called to the steel loop, danced over like coins.",
+      "An eddy-current probe under the belt listens for ferrous signatures. If the reading comes back metal, the piece belongs to the steel loop.",
     rule: "TAGGED → L02 STEEL",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -70,9 +70,9 @@ const CARDS: Array<{
   {
     sensor: "LC",
     num: "04",
-    name: "Load Cell Essay",
+    name: "Load Cell Check",
     copy:
-      "Strain gauges weigh the piece against its declared profile. Out-of-band loads — featherweights to boulders — are barred from QC.",
+      "Strain gauges hold the piece still and read its weight. Under 2 kg or over 12 kg counts as off-band, and off-band pieces never pass QC.",
     rule: "OUTLIER → REJECT",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -113,7 +113,7 @@ export default function Stations() {
         <header className="chapter" data-reveal>
           <span className="num">03</span>
           <span className="label">STATIONS</span>
-          <span className="of">FOUR READERS — ONE PASS</span>
+          <span className="of">FOUR STATIONS — ONE PASS</span>
         </header>
 
         <div className="station-grid">

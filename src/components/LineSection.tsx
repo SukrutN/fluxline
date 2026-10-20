@@ -10,11 +10,11 @@ import { reveal } from "@/lib/scroll";
 import type { Density } from "@/lib/sim/engine";
 
 const IDLE_CAPTIONS = [
-  { tag: "METHOD", title: "Every piece, profiled in a single pass." },
-  { tag: "LAW", title: "Tall to oversize. Ferrous to the steel loop." },
-  { tag: "QC", title: "Anomalous weight earns the reject chute." },
-  { tag: "SAFETY", title: "E-stop latches everything. Reset absolves." },
-  { tag: "LEDGER", title: "The line keeps its own books." },
+  { tag: "METHOD", title: "Sensors read each piece while the belt is already moving" },
+  { tag: "LAW", title: "Tall to oversize. Ferrous to steel. Off-weight to reject" },
+  { tag: "QC", title: "A piece outside the band never reaches the end of the belt" },
+  { tag: "SAFETY", title: "E-stop holds everything. Reset clears it, the line picks back up" },
+  { tag: "LEDGER", title: "Counts and OEE update live in the panel below" },
 ];
 
 const SENSORS = [
@@ -72,8 +72,10 @@ export default function LineSection() {
       raf = requestAnimationFrame(loop);
       const dt = (now - last) / 1000;
       last = now;
-      if (!visibleRef.current) return;
+      // always tick the machine — counters and uptime must advance even when
+      // the canvas is scrolled away (the ledger reads the same engine)
       engine.tick(dt);
+      if (!visibleRef.current) return;
       draw(ctx, engine, frame.clientWidth, frame.clientHeight);
     };
     raf = requestAnimationFrame(loop);
@@ -192,7 +194,7 @@ export default function LineSection() {
 
         <div className="manifesto" style={{ maxWidth: "1100px" }} data-reveal>
           <p className="big" style={{ fontSize: "clamp(34px,4.6vw,66px)" }}>
-            One belt. Four readers. <span className="accent">One verdict each.</span>
+            The belt reads each piece once. <span className="accent">The gates don't ask twice.</span>
           </p>
         </div>
 

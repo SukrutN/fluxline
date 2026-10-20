@@ -56,13 +56,13 @@ export default function LedgerSection() {
         <header className="chapter" data-reveal>
           <span className="num">04</span>
           <span className="label">LEDGER</span>
-          <span className="of">EVERY VERDICT, ACCOUNTED</span>
+          <span className="of">EVERY PIECE, ACCOUNTED</span>
         </header>
 
         <div className="manifesto" style={{ maxWidth: 980, marginBottom: "clamp(40px,6vw,80px)" }} data-reveal>
           <p className="big" style={{ fontSize: "clamp(30px,3.8vw,54px)" }}>
-            The line writes <span className="accent">its own books.</span> OEE to the second,
-            verdicts to the piece — kept at plant temperature.
+            Everything the line does ends up here.{" "}
+            <span className="accent">Pieces in, pieces out, every fault time-stamped.</span>
           </p>
         </div>
 

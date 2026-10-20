@@ -35,11 +35,11 @@ function StatusChip() {
       : snap.running
         ? "RUNNING"
         : "STANDBY";
-  const tone = snap.estopped ? "redled" : snap.jammed ? "hot" : snap.running ? "okled" : "";
+  const tone = snap.estopped ? "redled" : snap.jammed ? "hot" : snap.running ? "okled" : "off";
   return (
-    <span className="cell">
+    <span className="chip">
       <span className={"led " + tone} />
-      <span className="val">{state}</span>
+      <span>{state}</span>
     </span>
   );
 }
@@ -85,9 +85,10 @@ export default function Chrome() {
             className={active === c.id ? "active" : ""}
             onClick={() => scrollToId(c.id)}
             aria-current={active === c.id ? "true" : undefined}
+            aria-label={`${c.num} · ${c.label}`}
           >
             <span className="dot" />
-            {c.num}&nbsp;<span className="lbl">{c.label}</span>
+            <span className="lbl">{c.num}&nbsp;&nbsp;{c.label}</span>
           </button>
         ))}
       </nav>

@@ -11,9 +11,9 @@ const TICKER = [
   "HEIGHT PROFILE · ARMED",
   "INDUCTIVE TAG · SCANNING",
   "LOAD CELL · 240 Hz",
-  "3-WAY GATE CASCADE · ACTIVE",
+  "3-WAY GATE ROUTING · ACTIVE",
   "WATCHDOG · BEATING",
-  "OEE LEDGER · OPEN",
+  "OEE COUNTERS · OPEN",
   "MADE TO SORT",
 ];
 
@@ -42,10 +42,10 @@ export default function Hero() {
 
         <div className="lede">
           <p>
-            A 3-way smart sorting line, simulated end to end in your browser —
-            four sensors, three gates, a reject chute, a watchdog and its own
-            operating ledger. One pass down the belt. Four verdicts. No
-            spreadsheet, no server.
+            A 3-way sorting line you can run right now. Four sensors profile
+            every piece in a single pass, then the gates route it: tall to
+            oversize, ferrous to the steel loop, off-weight to reject. It all
+            lives in the browser. The PLC program ships next.
           </p>
           <button className="cta" onClick={() => scrollToId("line")}>
             RUN THE LINE ↓

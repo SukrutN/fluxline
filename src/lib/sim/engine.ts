@@ -136,7 +136,7 @@ export class LineEngine {
     this.spawn(0.32, "tall", true);
     this.spawn(0.60, "metal", true);
     this.spawn(0.76, "offspec", true);
-    this.log("INFO", "OPS", "sandbox mounted — cascade armed");
+    this.log("INFO", "OPS", "line mounted — gates armed");
   }
 
   wirePublish(fn: () => void) {
@@ -150,7 +150,7 @@ export class LineEngine {
     if (this.running) return;
     this.running = true;
     this.everStarted = true;
-    this.log("OK", "OPS", "line start — cascade armed");
+    this.log("OK", "OPS", "line start — gates armed");
     this.publish();
   }
 
@@ -487,9 +487,9 @@ export class LineEngine {
         this.reads.LC = item.kg.toFixed(1) + " KG";
         item.lane = this.assignLane(item);
         if (bad) {
-          this.log("WARN", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg — out of band, reject verdict");
+          this.log("WARN", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg — out of band, sending to reject");
         } else {
-          this.log("OK", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg — verdict L0" + (item.lane === "lane1" ? "1" : item.lane === "lane2" ? "2" : "3"));
+          this.log("OK", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg — routing to L0" + (item.lane === "lane1" ? "1" : item.lane === "lane2" ? "2" : "3"));
         }
         break;
       }

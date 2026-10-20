@@ -11,15 +11,15 @@ const SPECS: Array<[string, React.ReactNode]> = [
   ],
   [
     "ACTUATE",
-    "Four cascade diverters with pre-open lead logic — a gate arms before the piece arrives, never while it passes.",
+    "Four diverters with pre-open lead logic — a gate opens before the piece reaches it, never while it passes.",
   ],
   [
     "FAIL SAFELY",
-    "Field injectable jam; watchdog trips the E-STOP if an obstruction outlives eight seconds. Reset absolves.",
+    "Field injectable jam; the watchdog trips the E-STOP if an obstruction sits longer than eight seconds. Reset clears it.",
   ],
   [
     "ACCOUNT",
-    "OEE (availability × performance × quality) · rolling pieces/min · per-lane verdict counts · timestamped journal",
+    "OEE (availability × performance × quality) · rolling pieces/min · per-lane counts · timestamped journal",
   ],
   [
     "STACK",
@@ -43,14 +43,10 @@ export default function UnitSection() {
           </header>
 
           <div className="manifesto" style={{ maxWidth: 1180 }}>
+            <p className="big">One rule runs the whole line.</p>
+            <p className="big">Read the piece. Pick the lane.</p>
             <p className="big">
-              Sorting is a <span className="accent">contract.</span>
-            </p>
-            <p className="big">
-              Sensors vouch. Gates decide.
-            </p>
-            <p className="big">
-              The ledger <span style={{ fontStyle: "italic", color: "var(--muted-2)" }}>remembers.</span>
+              Then <span style={{ fontStyle: "italic", color: "var(--muted-2)" }}>write it down.</span>
             </p>
           </div>
 

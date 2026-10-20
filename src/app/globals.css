@@ -109,7 +109,7 @@ body::after {
 
 .section {
   position: relative;
-  padding: clamp(48px, 9vw, 128px) clamp(20px, 4vw, 64px) clamp(80px, 12vw, 176px);
+  padding: clamp(48px, 9vw, 128px) clamp(56px, 6vw, 76px) clamp(80px, 12vw, 176px);
 }
 
 .wide {
@@ -190,16 +190,37 @@ body::after {
   font-weight: 500;
 }
 
+/* status chip — shared by the chrome bar */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.chip .led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4a443a;
+  flex: none;
+}
+.chip .led.off {
+  background: #4a443a;
+}
+
 .rail {
   position: fixed;
-  left: clamp(10px, 1.6vw, 22px);
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 12px 10px;
+  padding: 12px 9px;
   background: color-mix(in srgb, var(--paper) 85%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -211,15 +232,15 @@ body::after {
   all: unset;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 9.5px;
   letter-spacing: 0.1em;
   color: var(--ink);
   opacity: 0.42;
   transition: opacity 0.25s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 6px;
+  gap: 7px;
+  padding: 4px;
   white-space: nowrap;
 }
 .rail button:hover {
@@ -254,6 +275,7 @@ body::after {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  padding-inline: clamp(24px, 7vw, 108px);
   padding-top: 21vh;
 }
 .hero .eyebrow {
@@ -429,16 +451,17 @@ body::after {
   border-radius: 50%;
   background: #4a443a;
   transition: background 0.08s linear;
+  flex: none;
 }
-.telemetry .led.hot {
+.led.hot {
   background: var(--amber);
   box-shadow: 0 0 14px 2px rgba(255, 127, 36, 0.55);
 }
-.telemetry .led.okled {
+.led.okled {
   background: var(--ok);
   box-shadow: 0 0 12px 2px rgba(62, 125, 78, 0.45);
 }
-.telemetry .led.redled {
+.led.redled {
   background: var(--danger);
   box-shadow: 0 0 14px 2px rgba(200, 69, 44, 0.55);
 }
@@ -707,7 +730,7 @@ body::after {
 footer {
   background: var(--paper);
   color: var(--ink);
-  padding: clamp(40px, 7vw, 88px) clamp(20px, 4vw, 64px) 48px;
+  padding: clamp(40px, 7vw, 88px) clamp(56px, 6vw, 76px) 48px;
   border-top: 1px solid var(--rule);
 }
 footer .foot-grid {
