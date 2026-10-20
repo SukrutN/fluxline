@@ -1,0 +1,5 @@
+# The image needs the sim's sources and this file; nothing else.
+*
+!engine
+!Dockerfile
+engine/**/__pycache__
