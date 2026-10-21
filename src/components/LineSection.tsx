@@ -37,7 +37,6 @@ export default function LineSection() {
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const visibleRef = useRef(true);
-  const [caption, setCaption] = useState(IDLE_CAPTIONS[0]);
   const [idleIdx, setIdleIdx] = useState(0);
 
   // ── sim loop ────────────────────────────────────────────────
@@ -122,38 +121,33 @@ export default function LineSection() {
     };
   }, []);
 
-  // ── captions: live event stream with idle fallback ──────────
-  useEffect(() => {
-    const ev = snap.events.find((e) => e.kind !== "INFO");
-    const shiny = snap.events[0];
-    if (shiny && shiny.kind === "FAULT") {
-      setCaption({ tag: shiny.tag, title: shiny.msg });
-      return;
-    }
-    if (shiny && snap.time - shiny.t < 2.4) {
-      setCaption({ tag: shiny.tag, title: shiny.msg });
-      return;
-    }
-    if (ev && snap.time - ev.t < 6) {
-      setCaption({ tag: ev.tag, title: ev.msg });
-      return;
-    }
-  }, [snap.version, snap.time, snap.events]);
-
+  // ── captions: idle rotation ticker ──────────────────────────
+  // Ticks the idle caption rotation. The subscription runs at 1/7 Hz and
+  // only advances an index — the caption text itself is derived below, an
+  // external system feeding React, not React mirroring itself in an
+  // effect.
   useEffect(() => {
     const t = setInterval(() => setIdleIdx((i) => i + 1), 7000);
     return () => clearInterval(t);
   }, []);
 
-  // rotate to a static caption whenever the stream goes quiet
-  const lastEvent = snap.events[0];
-  const streamActive = lastEvent ? snap.time - lastEvent.t < 5 : false;
-  useEffect(() => {
-    if (!streamActive) {
-      setCaption(IDLE_CAPTIONS[idleIdx % IDLE_CAPTIONS.length]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idleIdx, streamActive]);
+  // ── captions: derived, never mirrored ───────────────────────
+  // The caption is a pure projection of the event snapshot, recomputed on
+  // every render, in strict priority order: a live FAULT takes the board,
+  // the newest event holds it for 2.4 s, its tail stays on for 5 s, then
+  // the idle rotation takes over. Deriving rather than mirroring the
+  // snapshot into state removes the setState-in-effect class of bugs —
+  // and with it, two effects that had to race for caption ownership.
+  const shiny = snap.events[0];
+  const ev = snap.events.find((e) => e.kind !== "INFO");
+  const caption =
+    shiny && shiny.kind === "FAULT"
+      ? { tag: shiny.tag, title: shiny.msg }
+      : shiny && snap.time - shiny.t < 2.4
+        ? { tag: shiny.tag, title: shiny.msg }
+        : ev && snap.time - ev.t < 5
+          ? { tag: ev.tag, title: ev.msg }
+          : IDLE_CAPTIONS[idleIdx % IDLE_CAPTIONS.length];
 
   // ── keyboard ────────────────────────────────────────────────
   useEffect(() => {
@@ -194,7 +188,8 @@ export default function LineSection() {
 
         <div className="manifesto" style={{ maxWidth: "1100px" }} data-reveal>
           <p className="big" style={{ fontSize: "clamp(34px,4.6vw,66px)" }}>
-            The belt reads each piece once. <span className="accent">The gates don't ask twice.</span>
+            The belt reads each piece once.{" "}
+            <span className="accent">The gates don&apos;t ask twice.</span>
           </p>
         </div>
 

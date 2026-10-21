@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { scrollToId } from "@/lib/scroll";
 import { useLine, formatWallClock } from "@/lib/sim/store";
 
@@ -12,16 +12,42 @@ const CHAPTERS = [
   { id: "unit", num: "05", label: "UNIT" },
 ];
 
+// ── wall clock ──────────────────────────────────────────────
+// The clock's hands belong to the platform, not to React state: the
+// component subscribes to wall time via useSyncExternalStore instead of
+// running a timer that mirrors Date.now() into an effect. The snapshot is
+// cached so React sees a stable value between the 1 Hz ticks (a fresh
+// Date.now() on every read would look like an always-changing store and
+// can loop renders). The server snapshot is 0, so SSR renders "--:--:--"
+// and the very first client paint cannot disagree with it.
+let wallCache = 0;
+
+function subscribeWallClock(onChange: () => void): () => void {
+  wallCache = Date.now();
+  const t = setInterval(() => {
+    wallCache = Date.now();
+    onChange();
+  }, 1000);
+  return () => clearInterval(t);
+}
+
+function getWallSnapshot(): number {
+  return wallCache;
+}
+
+function getWallServerSnapshot(): number {
+  return 0;
+}
+
 function Clock() {
-  const [now, setNow] = useState<Date | null>(null);
-  useEffect(() => {
-    setNow(new Date());
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
+  const nowMs = useSyncExternalStore(
+    subscribeWallClock,
+    getWallSnapshot,
+    getWallServerSnapshot
+  );
   return (
     <span suppressHydrationWarning>
-      {now ? formatWallClock(now) : "--:--:--"}
+      {nowMs ? formatWallClock(new Date(nowMs)) : "--:--:--"}
     </span>
   );
 }
