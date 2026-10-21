@@ -1,5 +1,7 @@
 # FLUXLINE® — Line 01 · Smart Sorting Systems
 
+[![CI](https://github.com/SukrutN/fluxline/actions/workflows/ci.yml/badge.svg)](https://github.com/SukrutN/fluxline/actions/workflows/ci.yml)
+
 A **3-way smart sorting line**, simulated end to end in the browser — four sensors, three gates, a reject chute, a watchdog and its own operating ledger. Presented as an editorial "machine brochure": warm paper, steel, signal amber, huge serif type, live plant clock.
 
 > Phase 01 of 02 — the **web line** (this repo). Phase 02 is the real **OpenPLC program** (ladder logic for OpenPLC Runtime, separate repository).
