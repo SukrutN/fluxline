@@ -3,11 +3,6 @@ import { Fraunces, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Chrome from "@/components/Chrome";
-import Hero from "@/components/Hero";
-import LineSection from "@/components/LineSection";
-import Stations from "@/components/Stations";
-import LedgerSection from "@/components/LedgerSection";
-import UnitSection from "@/components/UnitSection";
 
 const serif = Fraunces({
   variable: "--font-serif",
