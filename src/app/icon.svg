@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Fluxline mark: one belt, three sorted lanes. Matches the page
+       palette (deep green tile, bright green signal). -->
+  <rect width="64" height="64" rx="14" fill="#0b191b" />
+  <g fill="none" stroke="#5eff88" stroke-width="5" stroke-linecap="round">
+    <path d="M8 32 H24" />
+    <path d="M24 32 C34 32 36 26 42 20 C44 18 48 16 56 16" />
+    <path d="M24 32 H56" />
+    <path d="M24 32 C34 32 36 38 42 44 C44 46 48 48 56 48" />
+  </g>
+</svg>

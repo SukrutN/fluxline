@@ -1,0 +1,1733 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   FLUXLINE design system
+   deep green machine room, bright green signal, light grey text
+   furniture, mono micro-labels, raster display sign-offs.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* Color scales. */
+  --deep-green-50: #e6ebec;
+  --deep-green-100: #cdd6d8;
+  --deep-green-200: #9baeb1;
+  --deep-green-250: #819699;
+  --deep-green-300: #6a878a;
+  --deep-green-400: #3a6063;
+  --deep-green-425: #283c40;
+  --deep-green-450: #1b2f33;
+  --deep-green-500: #112529;
+  --deep-green-600: #0e1f22;
+  --deep-green-700: #0b191b;
+  --deep-green-800: #061217;
+  --deep-green-900: #050c0d;
+
+  --bright-green-25: #e7ffed;
+  --bright-green-50: #dcffe5;
+  --bright-green-100: #c8ffd9;
+  --bright-green-200: #98feb8;
+  --bright-green-300: #69fd98;
+  --bright-green-400: #65f292;
+  --bright-green-500: #5eff88;
+  --bright-green-600: #55e57a;
+  --bright-green-700: #2a9b5c;
+  --bright-green-800: #1f7447;
+  --bright-green-900: #154d32;
+
+  --muted-green-50: #e8ecea;
+  --muted-green-100: #cdd5d0;
+  --muted-green-200: #a7b7ad;
+  --muted-green-300: #82988b;
+  --muted-green-400: #6b8176;
+  --muted-green-500: #547165;
+  --muted-green-600: #466054;
+  --muted-green-700: #394f44;
+  --muted-green-800: #2c3e34;
+  --muted-green-900: #1e2c23;
+
+  --light-grey-50: #f4fbfb;
+  --light-grey-100: #e7f6f3;
+  --light-grey-200: #daeded;
+  --light-grey-300: #cde4e7;
+  --light-grey-400: #c1dbe1;
+  --light-grey-500: #a3c0c8;
+  --light-grey-600: #88a5ac;
+  --light-grey-700: #6d8a90;
+  --light-grey-800: #536f74;
+  --light-grey-900: #3a555a;
+
+  --live-red: #ff0015;
+  --live-amber: #f90;
+
+  /* Roles. */
+  --page: var(--deep-green-700);
+  --page-deep: var(--deep-green-800);
+  --panel: var(--deep-green-600);
+  --ink: #ffffff;
+  --ink-soft: var(--bright-green-100);
+  --ink-dim: var(--light-grey-500);
+  --ink-muted: var(--deep-green-300);
+  --accent: var(--bright-green-500);
+  --accent-strong: var(--bright-green-400);
+  --accent-soft: var(--bright-green-200);
+  --ok: var(--accent-strong);
+  --line: var(--deep-green-450);
+  --line-soft: var(--deep-green-425);
+
+  /* Type. Open faces throughout; none licensed, none bundled. */
+  --sans: var(--font-inter), "Segoe UI", Helvetica, Arial, sans-serif;
+  --display: var(--font-archivo), var(--font-inter), "Segoe UI", sans-serif;
+  --raster: var(--font-silkscreen), "Courier New", monospace;
+  --raster-rounded: var(--font-pixelify), var(--font-silkscreen), monospace;
+  --mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* The signature easing, used across the site's motion. */
+  --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto; /* Lenis owns scrolling */
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+/* Lenis's own recommended rules; the library adds these classes. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* The page-wide highlight: near-black with light ink,
+   and bright green inside the console. */
+::selection {
+  background: var(--deep-green-900);
+  color: var(--deep-green-50);
+}
+.console ::selection {
+  background: var(--accent);
+  color: var(--page-deep);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* CRT scanlines over everything, in place of the old film grain, with a
+   slow bright sweep and a quiet flicker, the living screen. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20000;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.022) 0 1px,
+      transparent 1px 3px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(94, 255, 136, 0.014) 0 1px,
+      transparent 1px 48px
+    );
+  animation: crt-flicker 5s steps(20) infinite;
+}
+@keyframes crt-flicker {
+  0% { opacity: 1; }
+  46% { opacity: 0.86; }
+  47% { opacity: 1; }
+  73% { opacity: 0.92; }
+  74% { opacity: 1; }
+}
+.crt-sweep {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 19999;
+  overflow: hidden;
+}
+.crt-sweep::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  top: -25%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(94, 255, 136, 0.03),
+    transparent
+  );
+  animation: crt-sweep 9s linear infinite;
+}
+@keyframes crt-sweep {
+  to { top: 105%; }
+}
+
+/* The arrival veil: the wordmark on the deep machine room, gone in a
+   beat. */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 30000;
+  background: var(--page-deep);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: preloader-out 0.7s ease-out 1s forwards;
+}
+.preloader span {
+  font-family: var(--raster);
+  font-weight: 400;
+  font-size: clamp(36px, 6vw, 90px);
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+@keyframes preloader-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* ── typography ─────────────────────────────────────────────── */
+
+.mono {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* The hero title: light grotesk, bright green, tight tracking,
+   one em of line height. */
+.display {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(36px, 27.81px + 2.1vw, 64px);
+  line-height: 1em;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+  margin: 0;
+}
+
+.display .accent {
+  color: var(--ink);
+  font-style: normal;
+}
+
+/* Each hero title line rises out of an overflow-hidden wrapper. The
+   wrapper must extend past the text's descenders, or the tail of a g
+   stays amputated at rest; the matching negative margin keeps the
+   lines exactly where they were. */
+.hero .display > span {
+  padding-bottom: 0.25em;
+  margin-bottom: -0.25em;
+}
+
+/* The footer sign-off carries the raster display voice, the big
+   statement treatment. */
+.signoff {
+  font-family: var(--raster);
+  font-weight: 400;
+  font-size: clamp(40px, 4.4vw, 88px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  margin: 0;
+}
+.signoff .signoff-sub {
+  font-family: var(--mono);
+  font-size: clamp(11px, 1vw, 14px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* A table or figure note: the sentence that carries the acronyms
+   and the definitions. */
+.lede-link {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  transition: border-color 0.25s var(--ease-out-quint);
+  white-space: nowrap;
+}
+.lede-link:hover {
+  border-color: var(--accent);
+}
+
+.note {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--ink-muted);
+  margin: 14px 0 0;
+  max-width: 64ch;
+}
+
+/* ── layout ─────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  padding: clamp(60px, 42.06px + 4.6vw, 120px) clamp(24px, 4vw, 64px);
+}
+
+.wide {
+  max-width: none;
+  margin: 0 auto;
+}
+
+.section.ink {
+  background: var(--page-deep);
+  color: var(--ink);
+}
+
+.section.ledger-paper {
+  background: var(--panel);
+}
+
+/* chapter header */
+.chapter {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 18px;
+  margin-bottom: clamp(40px, 6vw, 88px);
+}
+.chapter .num {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+.chapter .label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.chapter .of {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+}
+.ink .chapter {
+  border-color: var(--line-soft);
+}
+.ink .chapter .of {
+  color: var(--ink-muted);
+}
+
+/* ── chrome: anchors bar and menu pill ─────────────────────── */
+
+/* The thin bar pinned to the top: current page, chapter links, and the
+   reading progress under it. */
+.anchors {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  background: var(--page-deep);
+  border-bottom: 1px solid var(--deep-green-500);
+  z-index: 1000;
+  padding: 0 10px;
+}
+.anchors .page-tab {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  position: relative;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.anchors .page-tab .underline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent);
+}
+.anchors .anchor-list {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding-left: 8px;
+}
+.anchors .anchor-list button {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-green-700);
+  transition: color 0.3s var(--ease-out-quint);
+}
+.anchors .anchor-list button:hover {
+  color: var(--ink-muted);
+}
+.anchors .anchor-list button.active {
+  color: var(--accent);
+}
+.anchors .progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+/* The hover panel under the bar: each chapter's one-liner and a live
+   value from the line. */
+.anchor-panel {
+  position: fixed;
+  top: 32px;
+  left: 14px;
+  z-index: 1001;
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 10px 16px;
+  background: color-mix(in srgb, var(--page-deep) 92%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line-soft);
+  border-radius: 0 12px 12px 12px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s var(--ease-out-quint), transform 0.25s var(--ease-out-quint);
+}
+.anchor-panel.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+.anchor-panel .ap-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.anchor-panel .ap-summary {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.anchor-panel .ap-live {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+/* The floating pill pinned to the bottom center: wordmark, live line
+   state, plant clock, and the one CTA. */
+.menu-pill {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: color-mix(in srgb, var(--bright-green-200) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 13px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+}
+.menu-pill .pill-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  background: var(--deep-green-600);
+  color: var(--ink);
+  border-radius: 11px;
+  padding: 9px 14px;
+  white-space: nowrap;
+}
+.menu-pill .chip {
+  color: var(--deep-green-500);
+  padding: 9px 12px;
+}
+.menu-pill .chip .led.off {
+  background: var(--muted-green-300);
+}
+.menu-pill .pill-clock {
+  font-size: 10.5px;
+  color: var(--deep-green-500);
+  padding: 0 8px;
+  white-space: nowrap;
+}
+.menu-pill .pill-cta {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: var(--page-deep);
+  border-radius: 11px;
+  padding: 9px 14px;
+  white-space: nowrap;
+  transition: transform 0.3s var(--ease-out-quint);
+}
+.menu-pill .pill-cta:hover {
+  transform: scale(1.02, 1.05);
+}
+
+/* status chip: shared by the menu pill */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.chip .led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  flex: none;
+}
+
+/* ── console: the machine's side of the story, docked right ── */
+
+.console {
+  position: fixed;
+  top: 32px;
+  right: 0;
+  bottom: 0;
+  width: clamp(300px, 22vw, 420px);
+  z-index: 900;
+  pointer-events: none;
+}
+.console-body {
+  pointer-events: auto;
+  position: absolute;
+  inset: 0;
+  background: var(--page-deep);
+  border-left: 1px solid var(--deep-green-500);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.5s var(--ease-out-quint);
+}
+.console.closed .console-body {
+  transform: translateX(calc(100% - 34px));
+}
+.console-head {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 34px;
+  padding: 0 10px 0 14px;
+  border-bottom: 1px solid var(--deep-green-500);
+  flex: none;
+}
+.console-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-green-700);
+}
+.console:not(.closed) .console-title {
+  color: var(--accent);
+}
+.console-toggle {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted-green-700);
+  padding: 4px 6px;
+}
+.console-scroll {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.console-inner {
+  display: flex;
+  padding: 12px 0 24px;
+}
+.console-numbers {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: 4.5ch;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: var(--deep-green-500);
+  user-select: none;
+}
+.console-code {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: var(--accent);
+  white-space: pre-wrap;
+  padding-right: 14px;
+}
+.console-code .cursor {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  margin-left: 1px;
+  background: var(--accent);
+  vertical-align: baseline;
+  animation: console-caret 1s steps(2) infinite;
+}
+@keyframes console-caret {
+  50% { opacity: 0; }
+}
+.console-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 26px;
+  pointer-events: none;
+}
+.console-fade.top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--page-deep), transparent);
+}
+.console-fade.bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--page-deep), transparent);
+}
+
+/* ── hero ───────────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-inline: clamp(24px, 7vw, 108px);
+  padding-top: 21vh;
+}
+/* Floating verdict tags over the hero: a red chip for a detection, a
+   green chip for a routing. They stage in left to right. */
+.hero-tags {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.hero .eyebrow,
+.hero .lede {
+  position: relative;
+  z-index: 1;
+}
+.hero-tag {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+}
+.hero-tag .bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  background: var(--live-red);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: hero-tag-in 0.5s var(--ease-out-quint) var(--d, 1.4s) forwards;
+}
+.hero-tag .dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  animation: hero-tag-dot 0.3s var(--ease-out-quint) calc(var(--d, 1.4s) + 0.1s) forwards;
+}
+.hero-tag .label {
+  position: relative;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0;
+  animation: hero-tag-dot 0.3s var(--ease-out-quint) calc(var(--d, 1.4s) + 0.2s) forwards;
+}
+.hero-tag.ok .bg {
+  background: var(--accent);
+}
+.hero-tag.ok .label {
+  color: var(--page-deep);
+}
+@keyframes hero-tag-in {
+  to { transform: scaleX(1); }
+}
+@keyframes hero-tag-dot {
+  to { opacity: 1; }
+}
+
+
+.hero .eyebrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--line-soft);
+  padding-bottom: 14px;
+  margin-bottom: min(4vw, 56px);
+}
+.hero h1 {
+  text-wrap: balance;
+}
+.hero .lede {
+  display: flex;
+  gap: clamp(24px, 5vw, 96px);
+  margin-top: clamp(28px, 5vw, 64px);
+  align-items: flex-start;
+}
+.hero .lede .lede-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 46ch;
+}
+.hero .lede .lede-copy p {
+  color: var(--ink-soft);
+  font-size: 17px;
+  margin: 0;
+}
+.demo-tag {
+  align-self: flex-start;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  padding: 7px 12px;
+}
+/* The CTA: bright green fill, deep ink text, quiet scaling on hover. */
+.hero .cta {
+  all: unset;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--page-deep);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: transform 0.3s var(--ease-out-quint);
+  white-space: nowrap;
+  margin-left: auto;
+}
+.hero .cta:hover {
+  transform: scale(1.02, 1.05);
+}
+
+/* hero entrance: CSS wall-clock animations (survive rAF/timer starvation;
+   fill:both freeze at the final, fully-visible state, no courtesy for
+   background throttling, nothing can stick hidden) */
+@keyframes flx-rise {
+  from { transform: translateY(112%); }
+  to { transform: translateY(0); }
+}
+@keyframes flx-fade {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.hero .line-inner {
+  animation: flx-rise 1.2s var(--ease-out-quint) both;
+}
+.hero .display > span:nth-of-type(2) .line-inner {
+  animation-delay: 0.38s;
+}
+.hero .eyebrow > * {
+  animation: flx-fade 0.7s var(--ease-out-quint) both;
+}
+.hero .eyebrow > *:nth-child(2) { animation-delay: 0.12s; }
+.hero .eyebrow > *:nth-child(3) { animation-delay: 0.24s; }
+.hero .lede > * {
+  animation: flx-fade 0.8s var(--ease-out-quint) both;
+}
+.hero .lede .lede-copy { animation-delay: 0.9s; }
+.hero .lede .cta { animation-delay: 1.05s; }
+.marquee {
+  animation: flx-fade 1s ease-out both;
+  animation-delay: 1.25s;
+}
+
+/* marquee */
+.marquee {
+  overflow: hidden;
+  border-block: 1px solid var(--line-soft);
+  margin-top: clamp(40px, 7vw, 96px);
+}
+.marquee .track {
+  display: flex;
+  gap: 48px;
+  width: max-content;
+  animation: marquee 36s linear infinite;
+  padding-block: 12px;
+}
+.marquee .track span {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* ── the line ───────────────────────────────────────────────── */
+
+.line-wrap {
+  margin-top: clamp(32px, 6vw, 64px);
+}
+.sim-frame {
+  position: relative;
+  border-radius: clamp(16px, 13.66px + 0.6vw, 24px);
+  overflow: hidden;
+  background: var(--deep-green-900);
+  border: 1px solid var(--line);
+  height: clamp(420px, 62vh, 680px);
+}
+.sim-frame canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.sim-caption {
+  position: absolute;
+  left: clamp(20px, 4vw, 48px);
+  bottom: clamp(20px, 4vw, 44px);
+  max-width: 420px;
+  z-index: 5;
+}
+.sim-caption .cap-title {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(24px, 20.49px + 0.9vw, 36px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin: 6px 0 0;
+}
+.sim-caption .cap-tag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.telemetry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px 48px;
+  margin-top: 18px;
+  padding: 16px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.tele-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tele-head {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--deep-green-250);
+}
+.tele-cells {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+  gap: 14px 22px;
+}
+.telemetry .cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.telemetry .cell .cell-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.telemetry .led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.08s linear;
+  flex: none;
+}
+.led.hot {
+  background: var(--accent);
+  box-shadow: 0 0 14px 2px rgba(94, 255, 136, 0.45);
+}
+.led.warnled {
+  background: var(--live-amber);
+  box-shadow: 0 0 12px 2px rgba(255, 153, 0, 0.45);
+}
+.led.okled {
+  background: var(--ok);
+  box-shadow: 0 0 12px 2px rgba(101, 242, 146, 0.4);
+}
+.led.redled {
+  background: var(--live-red);
+  box-shadow: 0 0 14px 2px rgba(255, 0, 21, 0.5);
+}
+.telemetry .val {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin-left: 18px;
+}
+
+/* controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 20px;
+}
+/* Control buttons: deep panel fill, soft green label, quiet scale
+   on hover. */
+.controls button {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--deep-green-500);
+  background: var(--deep-green-500);
+  color: var(--ink-soft);
+  transition: transform 0.3s var(--ease-out-quint), border-color 0.3s var(--ease-out-quint);
+}
+.controls button:not(:disabled):hover {
+  transform: scale(1.02, 1.05);
+  border-color: var(--accent);
+}
+.controls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.controls .estop {
+  border-color: var(--live-red);
+  background: color-mix(in srgb, var(--live-red) 22%, transparent);
+  font-weight: 500;
+}
+.controls .estop.armed {
+  background: var(--live-red);
+  color: #fff;
+  animation: estop-pulse 1.1s ease-in-out infinite;
+}
+@keyframes estop-pulse {
+  50% { box-shadow: 0 0 0 6px rgba(255, 0, 21, 0.18); }
+}
+.controls .spacer {
+  flex: 1;
+}
+.controls label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.controls input[type="range"] {
+  accent-color: var(--accent);
+  width: 140px;
+}
+.controls select {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.controls select option {
+  background: var(--page-deep);
+  color: var(--ink);
+}
+
+/* The pointer glow: additive signal light under the cursor. */
+.pointer-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 640px;
+  height: 640px;
+  z-index: 400;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    circle at center,
+    rgba(94, 255, 136, 0.07),
+    transparent 62%
+  );
+}
+
+/* ── stations ───────────────────────────────────────────────── */
+
+.station-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 40px clamp(20px, 3vw, 48px);
+}
+/* The station-card response: the card lifts a background step, the
+   title goes signal, the schematic glows, and a scan line sweeps the
+   card while the pointer rests on it. */
+.station {
+  grid-column: span 3;
+  position: relative;
+  border-top: 1px solid var(--line-soft);
+  border-radius: 12px;
+  padding: 20px 16px 24px;
+  margin: 0 -12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+  transition: background-color 0.35s var(--ease-out-quint);
+}
+.station::after {
+  content: "";
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent),
+    transparent
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+.station:hover {
+  background: color-mix(in srgb, var(--page) 93%, var(--accent) 7%);
+}
+.station:hover::after {
+  opacity: 0.75;
+  animation: station-sweep 1.8s var(--ease-out-quint) infinite;
+}
+@keyframes station-sweep {
+  from { transform: translateX(-55%); }
+  to { transform: translateX(55%); }
+}
+.station .head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.station .k {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+}
+.station svg.schem {
+  width: 100%;
+  height: auto;
+  color: var(--ink);
+  transition: color 0.35s var(--ease-out-quint), filter 0.35s var(--ease-out-quint);
+}
+.station:hover svg.schem {
+  color: var(--accent);
+  filter: drop-shadow(0 0 10px rgba(94, 255, 136, 0.35));
+}
+.station h3 {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: clamp(24px, 20.49px + 0.9vw, 36px);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0;
+  transition: color 0.35s var(--ease-out-quint);
+}
+.station:hover h3 {
+  color: var(--accent);
+}
+.station p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: clamp(14px, 13.22px + 0.2vw, 16px);
+  line-height: 1.5;
+  max-width: 34ch;
+}
+.station .rule-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  padding: 7px 14px;
+  align-self: flex-start;
+  transition: color 0.35s var(--ease-out-quint), border-color 0.35s var(--ease-out-quint);
+}
+.station:hover .rule-tag {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+/* ── ledger ─────────────────────────────────────────────────── */
+
+/* Stat cards: a panel behind, the figure on top. */
+.stat-card {
+  position: relative;
+  border-radius: clamp(16px, 13.66px + 0.6vw, 24px);
+  background: var(--panel);
+  overflow: hidden;
+}
+.stat-card .stat-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(16px, 13.66px + 0.3vw, 24px) clamp(24px, 21.66px + 0.3vw, 32px);
+}
+
+.ledger-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 48px;
+}
+.oee-block {
+  grid-column: span 3;
+}
+.lanes-block {
+  grid-column: span 3;
+}
+.events-block {
+  grid-column: span 6;
+}
+.metric-big {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin: 0 0 14px;
+}
+.oee-ring {
+  position: relative;
+  aspect-ratio: 1;
+  max-width: 190px;
+}
+.oee-ring .fig {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.oee-ring .fig .fig-num {
+  font-family: var(--raster);
+  font-size: 22px;
+}
+.oee-ring .fig .fig-unit {
+  font-family: var(--raster-rounded);
+  font-size: 14px;
+  margin-left: 2px;
+}
+.lanes-block .lane-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  transition: background-color 0.25s var(--ease-out-quint);
+}
+.lanes-block .lane-row:hover {
+  background: rgba(94, 255, 136, 0.05);
+}
+.lanes-block .lane-row b {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.event-list li {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+  padding: 11px 6px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  transition: background-color 0.25s var(--ease-out-quint);
+}
+.event-list li:hover {
+  background: rgba(94, 255, 136, 0.04);
+}
+.event-list .t {
+  color: var(--ink-muted);
+  min-width: 64px;
+  font-variant-numeric: tabular-nums;
+}
+.event-list .kind {
+  color: var(--accent);
+  min-width: 86px;
+}
+.event-list .ok .kind {
+  color: var(--ok);
+}
+.spark {
+  margin-top: 8px;
+}
+
+/* ── hosted ─────────────────────────────────────────────────── */
+
+.hosted-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 48px;
+}
+.hosted-latency { grid-column: span 3; }
+.hosted-regs { grid-column: span 4; }
+.hosted-walk { grid-column: span 5; }
+
+.hosted-intro {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 68ch;
+  margin: 0 0 26px;
+}
+
+/* Disclosures keep the machine's own words one click away without
+   making them the reading flow. */
+.wire-details {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 14px;
+  margin-bottom: 40px;
+}
+.hosted-walk .wire-details,
+.hosted-grid .wire-details {
+  margin-bottom: 0;
+}
+.wire-details summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+}
+.wire-details[open] summary {
+  margin-bottom: 12px;
+}
+.wire-details p {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.8;
+  color: var(--ink-muted);
+  margin: 10px 0 0;
+}
+.wire-log li {
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+.wire-log .kind {
+  color: var(--deep-green-250);
+}
+
+/* ── closing theater ── */
+
+.closing {
+  position: relative;
+  /* The tuck: the region's blank first half sits behind the band above
+     it, so the reveal window opens from that band's edge instead of
+     leaving a screen of dead space. */
+  height: 200vh;
+  margin-top: -100vh;
+  pointer-events: none;
+  z-index: 0;
+}
+.closing-masked {
+  height: 100%;
+  background: var(--page-deep);
+  /* The masked-content window with a softened leading edge:
+     a 100x200 mask whose white shape covers only the bottom half, fading
+     in over its first stretch so anything resting on the sweep reads as
+     a veil rather than a hard cut through a descender. The sticky stage
+     below travels masked-out behind the page until the scroll sweeps
+     this window up over it. */
+  -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="200" viewBox="0 0 100 200" preserveAspectRatio="none"><defs><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="white" stop-opacity="0"/><stop offset="0.12" stop-color="white" stop-opacity="1"/></linearGradient></defs><rect x="0" y="100" width="100" height="100" fill="url(%23w)"/></svg>');
+  mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="200" viewBox="0 0 100 200" preserveAspectRatio="none"><defs><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="white" stop-opacity="0"/><stop offset="0.12" stop-color="white" stop-opacity="1"/></linearGradient></defs><rect x="0" y="100" width="100" height="100" fill="url(%23w)"/></svg>');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+.closing-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  /* Masked out, the stage still occupies the 100vh it travels behind the
+     section above. It must not swallow clicks there, so interactivity
+     switches on only once the window has opened over it (is-open, set by
+     the scrub trigger). */
+  pointer-events: none;
+}
+.closing-sticky.is-open {
+  pointer-events: auto;
+}
+.closing .closing-backdrop {
+  position: absolute;
+  inset: 0;
+}
+.closing .bands-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.closing .radial-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    var(--page-deep) 100%
+  );
+}
+.closing .gradient-overlay {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 50%;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--page-deep) 0%, transparent 20%);
+}
+.closing-content {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  text-align: center;
+  padding: 0 clamp(24px, 4vw, 64px);
+}
+.closing .line1 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(42px, 27.57px + 3.7vw, 90px);
+  line-height: 1em;
+  letter-spacing: -0.05em;
+  color: var(--accent-soft);
+  margin: 0;
+  text-wrap: balance;
+}
+.closing .line2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(42px, 27.57px + 3.7vw, 90px);
+  line-height: 1em;
+  letter-spacing: -0.05em;
+  color: var(--accent);
+  margin: 0;
+  text-wrap: balance;
+}
+.closing .closing-desc {
+  max-width: 52ch;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--accent-soft);
+  opacity: 0.6;
+  margin: 6px 0 0;
+}
+.closing .cta {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: var(--page-deep);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-top: 8px;
+  transition: transform 0.3s var(--ease-out-quint);
+}
+.closing .cta:hover {
+  transform: scale(1.02, 1.05);
+}
+.closing .closure {
+  display: block;
+  width: 1px;
+  height: 120px;
+  margin-top: 26px;
+  background: var(--accent-soft);
+  transform-origin: top center;
+}
+
+/* ── odometer figures ────────────────────────────────────────── */
+
+.odometer {
+  display: inline-flex;
+  align-items: baseline;
+}
+.odo-digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  vertical-align: baseline;
+}
+.odo-strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.9s var(--ease-out-quint);
+  will-change: transform;
+}
+.odo-strip span {
+  display: block;
+  height: 1em;
+  line-height: 1em;
+  text-align: center;
+}
+.odo-char {
+  display: inline-block;
+}
+
+/* ── unit / footer ──────────────────────────────────────────── */
+
+.manifesto p.big {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(30px, 24.54px + 1.4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.4em;
+  text-wrap: balance;
+}
+.manifesto p.big .accent {
+  color: var(--accent-soft);
+}
+
+.spec-table {
+  margin-top: clamp(48px, 7vw, 96px);
+  border-top: 1px solid var(--line-soft);
+}
+.spec-table .row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  border-bottom: 1px solid var(--line-soft);
+  padding: 16px 0;
+}
+.spec-table .row .k {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.spec-table .row .v {
+  font-size: 15.5px;
+  color: var(--ink-soft);
+}
+
+/* The footer carries a top gradient glow: bright green easing into
+   the deep machine room. */
+footer {
+  position: relative;
+  background: var(--page-deep);
+  color: var(--ink);
+  padding: clamp(40px, 7vw, 88px) clamp(24px, 4vw, 64px) 48px;
+  border-top: 1px solid var(--line-soft);
+  overflow: hidden;
+}
+footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 260px;
+  background: linear-gradient(
+    to bottom,
+    rgba(94, 255, 136, 0.18),
+    transparent
+  );
+  pointer-events: none;
+}
+footer .foot-grid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-end;
+  /* Keep the wordmark clear of the badge's reserved strip. */
+  padding-left: 64px;
+}
+footer .mono small {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-muted);
+}
+/* Floating code furniture and a rotated edge badge. The badge lives
+   in a reserved vertical strip at the far left, clear of the snippets
+   and the wordmark. */
+.footer-snippets {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  line-height: 1.6;
+  color: var(--bright-green-700);
+  white-space: pre;
+  z-index: 0;
+}
+.footer-snippets .s1 {
+  position: absolute;
+  left: clamp(84px, 7vw, 120px);
+  top: 30px;
+}
+.footer-snippets .s2 {
+  position: absolute;
+  left: 40%;
+  top: 130px;
+}
+.foot-badge {
+  position: absolute;
+  left: 14px;
+  top: 46%;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background: var(--deep-green-500);
+  border-radius: 20px;
+  padding: 2px;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  z-index: 0;
+}
+.foot-badge .chip-item {
+  background: var(--accent);
+  color: var(--page-deep);
+  border-radius: 20px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 10px 6px;
+  white-space: nowrap;
+}
+.foot-badge .chip-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+@media (min-width: 1023px) {
+  /* Keep the reading flow clear of the docked console. */
+  .wide {
+    padding-right: clamp(300px, 22vw, 420px);
+  }
+}
+
+/* responsive breakpoints */
+@media (max-width: 1290px) {
+  .station { grid-column: span 4; }
+  .events-block { grid-column: span 6; }
+}
+@media (max-width: 1023px) {
+  .station { grid-column: span 6; }
+  .oee-block, .lanes-block { grid-column: span 12; }
+  .events-block { grid-column: span 12; }
+  .hosted-latency, .hosted-regs, .hosted-walk { grid-column: span 12; }
+  .anchors { display: none; }
+  .console { display: none; }
+  .menu-pill .pill-clock { display: none; }
+}
+@media (max-width: 743px) {
+  .station { grid-column: span 12; }
+  .spec-table .row { grid-template-columns: 1fr; gap: 6px; }
+  .hero .lede { flex-direction: column; }
+  .tele-cells { grid-template-columns: repeat(2, 1fr); }
+  .footer-snippets .s2 { display: none; }
+  .footer-snippets .s1 { left: 24px; }
+  .foot-badge { display: none; }
+  footer .foot-grid { padding-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .closing {
+    height: auto;
+    margin-top: 0;
+    padding: clamp(60px, 42.06px + 4.6vw, 120px) 0;
+  }
+  .closing-masked {
+    height: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .closing-sticky {
+    position: relative;
+    height: auto;
+    pointer-events: auto;
+  }
+  .pointer-glow {
+    display: none;
+  }
+  .station:hover::after {
+    animation: none !important;
+    opacity: 0;
+  }
+  .hero .line-inner,
+  .hero .eyebrow > *,
+  .hero .lede > *,
+  .marquee {
+    animation: none !important;
+  }
+  .marquee .track {
+    animation: none !important;
+  }
+  .controls .estop.armed {
+    animation: none !important;
+  }
+  .hero-tag .bg {
+    animation: none !important;
+    transform: scaleX(1);
+  }
+  .hero-tag .dot,
+  .hero-tag .label {
+    animation: none !important;
+    opacity: 1;
+  }
+  .preloader {
+    animation: none !important;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .crt-sweep::before {
+    animation: none !important;
+  }
+  body::after {
+    animation: none !important;
+  }
+  .console-code .cursor {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,14 @@
+# The fluxline control room as one service: build the image, run the model's
+# HTTP face, and keep the operational knobs in one place. The token is
+# optional; when it is set the control room asks for it on the first refusal.
+services:
+  fluxline:
+    build: .
+    image: fluxline-control-room
+    ports:
+      - "8092:8092"
+    environment:
+      FLUXLINE_TOKEN: ${FLUXLINE_TOKEN:-}
+      FLUXLINE_RATE_LIMIT: ${FLUXLINE_RATE_LIMIT:-600}
+      FLUXLINE_MAX_BODY: ${FLUXLINE_MAX_BODY:-1048576}
+    restart: unless-stopped
