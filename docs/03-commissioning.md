@@ -45,7 +45,7 @@ client — `mbpoll`, a Python one-liner, or the harness twin's probe:
 python -c "from pymodbus.client import ModbusTcpClient; c=ModbusTcpClient('localhost',502); c.connect(); print(c.read_holding_registers(19,1).registers)"
 ```
 
-Expected: `[101]`. If your runtime serves a different offset convention,
+Expected: `[120]`. If your runtime serves a different offset convention,
 align the register map in `docs/02-register-map.md` to what you measure and
 note the delta in your commissioning record.
 
@@ -65,12 +65,20 @@ the OpenPLC runtime is configured as Modbus **master** polling it. The loop:
 Runtime side — Web UI → **Settings → Modbus Master** (or `ModbusEdit`):
 
 1. Add slave: `127.0.0.1:1502`, protocol TCP, node ID 1.
-2. Add four requests:
+2. Add six requests:
    - **Read Discrete Inputs**, offset 0, count 16 → binds to `%IX0.0..`
    - **Read Input Registers**, offset 0, count 8 → binds to `%IW0..`
+   - **Read Holding Registers**, offset 28, count 17 → binds to `%QW28..`
+     (host watchdog config + command block, docs/06)
    - **Write Coils**, offset 0, count 16, source `%QX0.0..`
-   - **Write Holding Registers**, offset 0, count 32, source `%QW0..`
+   - **Write Holding Registers**, offset 0, count 28, source `%QW0..`
+   - **Write Holding Registers**, offset 45, count 7, source `%QW45..`
+     (host ack block)
 3. Save and restart the runtime.
+
+Keep every read request above the write requests in the list — the master
+runs them in order, and the host words must be staged into the program
+before the acks go back out.
 
 Harness side:
 
@@ -86,6 +94,7 @@ Then start the line: pulse start (`sim/scenarios.py` does this, or write coil
 
 ```bash
 pytest sim/test_scenarios.py -v     # offline: validates expectations against the law
+pytest sim/test_hostblock.py -v     # offline: host block arbitration, no PLC needed
 pytest sim/test_line.py -v          # live: needs runtime + twin running
 ```
 
@@ -113,11 +122,13 @@ fresh clones never fail on a missing PLC.
 
 ## 8 · Go-live checklist
 
-- [ ] `version_w` reads 101 from Modbus
+- [ ] `version_w` reads 120 from Modbus
 - [ ] All E-stop devices open the chain (test each one)
 - [ ] Watchdog trips within 8 s of a real jam
 - [ ] Each lane receives a piece of its verdict class (10 pieces each)
 - [ ] Reject chute catches 10 consecutive off-band pieces
 - [ ] `heartbeat` advances while the HMI supervises
+- [ ] Host block master requests staged (read HR 28..44, write HR 45..51)
+- [ ] A release request arms, resolves and acks (docs/06 walkthrough)
 - [ ] Downtime accounting checked after a deliberate stop/restart cycle
 - [ ] Guard doors interlocked into the E-stop chain (physical, not software)

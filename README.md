@@ -5,8 +5,8 @@
 The machine itself. IEC 61131-3 Structured Text for the
 [OpenPLC runtime](https://github.com/thiagoralves/OpenPLC_v3): a 3-way
 conveyor sorting line with four sensors, three diverter gates, a reject
-chute, a jam watchdog, an E-stop state machine and continuous OEE
-accounting.
+chute, a jam watchdog, an E-stop state machine, continuous OEE accounting
+and a host command block a supervisory WCS can request releases through.
 
 Companion to [SukrutN/fluxline](https://github.com/SukrutN/fluxline) — the
 same line as an editorial web simulation (phase 1). This repo is the phase 2
@@ -41,9 +41,12 @@ docs/02-register-map.md  Modbus registers: state, alarms, OEE, config
 docs/03-commissioning.md install → upload → closed loop → calibrate → go-live
 docs/04-safety.md        what the software E-stop is, and is not
 docs/05-architecture.md  state machine, drift immunity, scaling to more lanes
+docs/06-host-block.md    the supervisory host contract: registers, arbitration
 sim/twin.py              digital twin - Modbus slave with belt physics
+sim/hostblock.py         offline reference model of the host block
 sim/scenarios.py         scripted runs (mixed batch, jam, E-stop)
 sim/test_scenarios.py    offline: the law itself
+sim/test_hostblock.py    offline: host block arbitration (deterministic ingest)
 sim/test_line.py         live: the runtime against the twin
 ```
 
@@ -78,8 +81,12 @@ Then the closed loop, no hardware:
   physical crossing; drift from belt slip cannot accumulate into a missed
   divert silently — misses are counted and alarmed.
 - **Config over Modbus, clamped.** Thresholds, watchdog and belt speed are
-  writable at runtime (`%QW20..27`) with sane clamps; a HMI cannot corrupt
+  writable at runtime (`%QW20..28`) with sane clamps; a HMI cannot corrupt
   the law, and a zero-config boot runs on compiled defaults.
+- **Host can only request.** The host command block (docs/06) takes release
+  requests from a supervisory WCS over Modbus; the verdict law keeps
+  absolute precedence. Vetoes, refusals and expiries are acked on the wire,
+  never silent — a stale host falls back to the law and says so.
 - **Fail-safe polarity.** The E-stop chain reads TRUE when healthy; a broken
   wire is an E-stop, not a nice surprise.
 - **Honest OEE.** Availability counts only JAM/ESTOP as downtime (deliberate

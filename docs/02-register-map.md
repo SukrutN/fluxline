@@ -33,6 +33,7 @@ in commissioning step 4.
 | 2 | 4 | E-stop chain open right now |
 | 3 | 8 | feed stall — no new piece for 20 s while RUN |
 | 4 | 16 | piece tracker full |
+| 5 | 32 | host stale — supervisor heartbeat lost (docs/06); only after a host had been live |
 
 ## Telemetry — holding registers (read-write area, program-written)
 
@@ -53,7 +54,7 @@ in commissioning step 4.
 | `%QW12` | routed | pieces | |
 | `%QW13` | pieces/min | rolling 60 s | |
 | `%QW14` | belt speed | mm/s | derived from tacho, setpoint fallback |
-| `%QW19` | version | 101 = 1.0.1 | handshake for HMI compatibility |
+| `%QW19` | version | 120 = 1.2.0 | handshake for HMI compatibility |
 
 ## Config — holding registers (write from HMI/HIL harness)
 
@@ -67,10 +68,23 @@ in commissioning step 4.
 | `%QW25` | diverter pre-arm | 20..500 | 120 | mm before the gate |
 | `%QW26` | scan period | 1..100 | 10 | ms — set to your runtime cycle |
 | `%QW27` | belt speed | 20..590 | 120 | mm/s setpoint |
+| `%QW28` | host watchdog | 1..60 | 5 | seconds without host heartbeat — [docs/06](06-host-block.md) |
 
 Out-of-range values are replaced by the compiled default each scan — a HMI
 cannot put the line into an invalid law. Reset of the runtime restores zeros,
 which resolve to defaults again.
+
+## Host command block — `%QW40..51` (supervisory host)
+
+A WES/WMS talker may request releases here; the floor law keeps absolute
+precedence. Full semantics, arbitration rules and examples live in
+[06 · host block](06-host-block.md). Quick reference:
+
+| Registers | Written by | Contents |
+|---|---|---|
+| `%QW40..44` | host | heartbeat, command seq / code / gate / claimed class |
+| `%QW45..48` | program | ack seq / state / gate / measured class |
+| `%QW49..51` | program | host state bits, in-flight, resolved-command count |
 
 ## Physical I/O in the same server
 

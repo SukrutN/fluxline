@@ -11,7 +11,10 @@ The program's state machine latches an E-stop condition from two sources:
 2. **The jam watchdog** — a piece blocking the photo-eye past the configured
    limit latches a JAM condition with identical output behavior.
 
-Both are **supervisory actions**. They stop the *process*.
+Both are **supervisory actions**. They stop the *process*. The host command
+block ([06 · host block](06-host-block.md)) holds no authority over them: an
+E-stop or jam refuses or expires a host release the same scan — the
+supervisory host requests, the floor decides.
 
 ## What it is not
 
