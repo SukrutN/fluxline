@@ -5,6 +5,38 @@ based on [Keep a Changelog](https://keepachangelog.com/), versions follow
 [Semantic Versioning](https://semver.org/), and a version's date is the
 date it shipped on `main` — not the date its work started.
 
+## [1.2.0] - 2026-11-14
+
+### Added
+- **The host command block** ([docs/06](docs/06-host-block.md)): a
+  supervisory WCS may request releases over Modbus wire `%QW28` +
+  `%QW40..51` — heartbeat, command (seq / code / gate / claimed class),
+  acks (armed / accepted / vetoed / refused / expired), status (armed /
+  live / fallback / veto-since-live bits, in-flight, resolved count) and
+  a host watchdog config word. The host can only request: the verdict
+  law keeps absolute precedence, vetoes are acked with the gate the
+  piece actually took, and a stale host falls back to the law with alarm
+  bit 5 (HOST_STALE) — set only after a host had been live.
+- `sim/hostblock.py`: offline reference model of the block, scan inputs
+  in, register writes out. `sim/test_hostblock.py` locks the behaviour
+  with no PLC attached: deterministic ingest (event-order strict,
+  timing-tolerant), E-stop precedence, heartbeat timeout → fallback →
+  return, and the veto/refuse/expiry edges.
+- `sim/test_line.py`: live host tests — refusal while stopped, accepted
+  release on the matching lane, veto when the floor disagrees, E-stop
+  expiry of an armed command, heartbeat fallback → return. They skip
+  without a runtime, or without the master's host requests. Version
+  register is now 120 = 1.2.0.
+- Amber stack light also marks a host in fallback: the line keeps
+  law-sorting, and the operator should know supervision dropped.
+- Commissioning §5: the master request pair staging the host block
+  (read HR 28..44, write HR 45..51) and two new go-live checks.
+
+### Changed
+- Twin holding-register store widened 32 → 64 words so wire 28..51 is
+  addressable; CI runs the offline host block suite alongside the law
+  tests.
+
 ## [1.1.1] - 2026-10-20
 
 ### Fixed

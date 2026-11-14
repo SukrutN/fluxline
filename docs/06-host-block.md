@@ -72,7 +72,11 @@ scan collapse to the last one.
 | 4 | EXPIRED | armed command dropped: the line left RUN or the host went stale |
 
 A refusal or expiry zeroes `ACK_GATE`/`ACK_CLASS` — nothing was measured,
-nothing moved.
+nothing moved. And the ack block is a **latest-event ledger, not a queue**:
+every ingest or resolve overwrites it, so two commands resolving within one
+scan leave only the second visible. `HOST_ACKS` counts every resolution —
+a talker that must not miss a receipt polls the block after each command
+while it is the only writer.
 
 ## Status — `%QW49..51`, and config `%QW28`
 

@@ -39,7 +39,7 @@ raw register convention and re-scale at the sensor amplifier.
 | `%QX0.3` | Div L03 | Diverter solenoid, lane 03 | |
 | `%QX0.4` | Reject pusher | Air pusher at the reject gate | Confirms via chute PE |
 | `%QX0.5` | Stack green | Stack light | RUN, no active alarm |
-| `%QX0.6` | Stack amber | Stack light | INIT / IDLE |
+| `%QX0.6` | Stack amber | Stack light | INIT / IDLE / host fallback (docs/06) |
 | `%QX0.7` | Stack red | Stack light | JAM / ESTOP |
 | `%QX1.0` | Horn | Alarm horn | Steady in JAM, 0.5 s blip on start |
 

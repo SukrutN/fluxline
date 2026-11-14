@@ -103,6 +103,8 @@ OpenPLC runtime is available; it skips (never fails) without one.
 ## Status
 
 - v1.0.1 — the program, docs, twin, offline tests, CI compile gate.
+- v1.2.0 — the host command block: a supervisory WCS requests releases,
+  the floor keeps final say ([docs/06](docs/06-host-block.md)).
 - Phase 3 (planned): the FLUXLINE web line reads this runtime's registers
   over Modbus and becomes its live operator dashboard.
 
