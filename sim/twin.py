@@ -96,7 +96,7 @@ class Twin:
         self.store = ModbusSlaveContext(
             di=ModbusSequentialDataBlock(0, [0] * 32),
             co=ModbusSequentialDataBlock(0, [0] * 32),
-            hr=ModbusSequentialDataBlock(0, [0] * 32),
+            hr=ModbusSequentialDataBlock(0, [0] * 64),   # 0..27 base map + host block 28..51
             ir=ModbusSequentialDataBlock(0, [0] * 32),
             zero_mode=True,
         )

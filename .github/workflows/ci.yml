@@ -38,4 +38,4 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r sim/requirements.txt
-      - run: python -m pytest sim/test_scenarios.py -v
+      - run: python -m pytest sim/test_scenarios.py sim/test_hostblock.py -v

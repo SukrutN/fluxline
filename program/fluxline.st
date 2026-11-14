@@ -13,11 +13,17 @@
 (*    else weight out of 2..12 kg    -> REJECT                             *)
 (*    else                           -> L01 APPROVED                       *)
 (*                                                                        *)
+(*  Host command block (docs/06): a supervisory WCS may request releases   *)
+(*  over Modbus wire %QW28 + %QW40..51. The host can only request - the    *)
+(*  verdict law keeps absolute precedence, vetoes are acked on the wire,   *)
+(*  and a stale host falls back to the law.                                *)
+(*                                                                        *)
 (*  Geometry, mm from the photo-eye:                                       *)
 (*    PE 0    HS 1200    ID 1900    LC 2600                                *)
 (*    gates: RJ 2900   L01 3100   L02 3300   L03 3500    belt end 3600     *)
 (*                                                                        *)
-(*  I/O and register maps: docs/01-io-map.md, docs/02-register-map.md      *)
+(*  Maps and contracts: docs/01-io-map.md, docs/02-register-map.md,        *)
+(*  docs/06-host-block.md                                                  *)
 (*  License: MIT (see LICENSE)                                             *)
 (* ==================================================================== *)
 
@@ -64,7 +70,7 @@ VAR
   c_routed      AT %QW112 : INT;    (* routed pieces, all lanes *)
   ppm           AT %QW113 : INT;    (* rolling pieces per minute *)
   speed_echo    AT %QW114 : INT;    (* belt speed mm/s, derived *)
-  version_w     AT %QW119 : INT;    (* program version, 101 = 1.0.1 *)
+  version_w     AT %QW119 : INT;    (* program version, 120 = 1.2.0 *)
 
   (* ---- config: written over Modbus holding registers, clamped below ---- *)
   cfg_tall_mm   AT %QW120 : INT;    (* tall threshold mm.    default 165   *)
@@ -75,6 +81,21 @@ VAR
   cfg_prearm    AT %QW125 : INT;    (* diverter pre-arm mm.  default 120   *)
   cfg_scan_ms   AT %QW126 : INT;    (* scan period ms.       default 10    *)
   cfg_belt_mms  AT %QW127 : INT;    (* belt speed mm/s.      default 120   *)
+
+  (* ---- host command block: wire %QW28 + 40..51 - docs/06-host-block.md -- *)
+  cfg_host_wd   AT %QW128 : INT;    (* host watchdog s.      default 5     *)
+  hb_host       AT %QW140 : INT;    (* host heartbeat, host-written *)
+  cmd_seq       AT %QW141 : INT;    (* command tag, edge-ingested, 0 idle *)
+  cmd_code      AT %QW142 : INT;    (* 1 release-override, 2 release-per-law *)
+  cmd_gate      AT %QW143 : INT;    (* 1 L01, 2 L02, 3 L03, 4 RJ *)
+  cmd_class     AT %QW144 : INT;    (* claimed law class, 0 = any *)
+  ack_seq       AT %QW145 : INT;    (* seq of the last ingested command *)
+  ack_state     AT %QW146 : INT;    (* 0 armed 1 accepted 2 vetoed 3 refused 4 expired *)
+  ack_gate      AT %QW147 : INT;    (* gate the commanded piece actually took *)
+  ack_class     AT %QW148 : INT;    (* measured law class of the command piece *)
+  host_state_w  AT %QW149 : WORD;   (* bit0 armed bit1 live bit2 fallback bit3 veto *)
+  in_flight_w   AT %QW150 : INT;    (* tracker slots occupied right now *)
+  host_acks_w   AT %QW151 : INT;    (* host commands resolved, wraps *)
 END_VAR
 
 VAR
@@ -178,6 +199,22 @@ VAR
   hb_acc  : REAL := 0.0;
   horn_s  : REAL := 0.0;
   horn_on : BOOL := FALSE;
+
+  (* ---- host block internals - docs/06 ---- *)
+  host_seq_last : INT := 0;        (* last cmd_seq seen - ingest edge *)
+  host_hb_last  : INT := 0;        (* last hb_host value *)
+  host_hb_seen  : BOOL := FALSE;   (* a heartbeat has moved at least once *)
+  host_stale_s  : REAL := 0.0;     (* seconds since the heartbeat moved *)
+  host_live     : BOOL := FALSE;
+  host_armed    : BOOL := FALSE;
+  armed_seq     : INT := 0;
+  armed_code    : INT := 0;
+  armed_gate    : INT := 0;
+  armed_class   : INT := 0;
+  host_vetoed   : BOOL := FALSE;   (* veto-since-live latch *)
+  host_acks     : INT := 0;
+  host_wd_lim   : REAL;            (* clamped watchdog seconds *)
+  host_n        : INT;             (* in-flight counter temp *)
 
   (* ---- loop temps ---- *)
   i : INT;
@@ -325,7 +362,84 @@ END_IF;
 
 
 (* ==================================================================== *)
-(*  3 . piece tracking                                                   *)
+(*  3 . host block - the floor has final say                              *)
+(* ==================================================================== *)
+
+(* Wire contract: docs/06-host-block.md. Requests in on %QW140..144,      *)
+(* acks out on %QW145..148, status on %QW149..151. Every read and write   *)
+(* lands on a scan boundary; the host can only request, the verdict law   *)
+(* keeps absolute precedence.                                             *)
+
+(* watchdog: staleness is seconds since HB_HOST changed. A host that has  *)
+(* never connected is not an alarm and not a fallback - the line simply   *)
+(* runs its own law. Alarm bit 5 lights only for a host that dropped.     *)
+
+host_wd_lim := INT_TO_REAL(cfg_host_wd);
+IF (host_wd_lim < 1.0) OR (host_wd_lim > 60.0) THEN host_wd_lim := 5.0; END_IF;
+
+IF hb_host <> host_hb_last THEN
+  host_hb_last := hb_host;
+  host_stale_s := 0.0;
+  IF NOT host_live THEN
+    host_vetoed := FALSE;      (* fresh session on every return *)
+  END_IF;
+  host_live := TRUE;
+  host_hb_seen := TRUE;
+ELSIF host_live THEN
+  host_stale_s := host_stale_s + scan_s;
+  IF host_stale_s > host_wd_lim THEN
+    host_live := FALSE;
+    IF host_armed THEN
+      ack_seq := armed_seq; ack_state := 4; ack_gate := 0; ack_class := 0;
+      host_armed := FALSE;
+      host_acks := host_acks + 1;
+    END_IF;
+  END_IF;
+END_IF;
+
+(* ingest: edge on CMD_SEQ, checks in floor-first order - stale host,    *)
+(* line not RUN, one already armed, then well-formedness. E-stop and jam *)
+(* win the same scan: state is fresh from the state machine above.       *)
+IF (cmd_seq <> 0) AND (cmd_seq <> host_seq_last) THEN
+  host_seq_last := cmd_seq;
+  IF NOT host_live THEN
+    ack_seq := cmd_seq; ack_state := 3; ack_gate := 0; ack_class := 0;
+    host_acks := host_acks + 1;
+  ELSIF state <> 2 THEN
+    ack_seq := cmd_seq; ack_state := 3; ack_gate := 0; ack_class := 0;
+    host_acks := host_acks + 1;
+  ELSIF host_armed THEN
+    ack_seq := cmd_seq; ack_state := 3; ack_gate := 0; ack_class := 0;
+    host_acks := host_acks + 1;
+  ELSIF (cmd_code < 1) OR (cmd_code > 2)
+        OR ((cmd_code = 1) AND ((cmd_gate < 1) OR (cmd_gate > 4)))
+        OR (cmd_class < 0) OR (cmd_class > 4) THEN
+    ack_seq := cmd_seq; ack_state := 3; ack_gate := 0; ack_class := 0;
+    host_acks := host_acks + 1;
+  ELSE
+    host_armed  := TRUE;
+    armed_seq   := cmd_seq;
+    armed_code  := cmd_code;
+    armed_gate  := cmd_gate;
+    armed_class := cmd_class;
+    ack_seq     := cmd_seq;
+    ack_state   := 0;
+    ack_gate    := 0;
+    ack_class   := 0;
+  END_IF;
+END_IF;
+
+(* an armed command needs continuous RUN - any floor condition, E-stop   *)
+(* first, expires it the same scan it appears                            *)
+IF host_armed AND (state <> 2) THEN
+  ack_seq := armed_seq; ack_state := 4; ack_gate := 0; ack_class := 0;
+  host_armed := FALSE;
+  host_acks := host_acks + 1;
+END_IF;
+
+
+(* ==================================================================== *)
+(*  4 . piece tracking                                                   *)
 (* ==================================================================== *)
 
 (* new piece on the photo-eye rising edge *)
@@ -389,6 +503,25 @@ FOR i := 0 TO 15 DO
         p_verdict[i] := 1;
       END_IF;
       p_lc_done[i] := TRUE;
+
+      (* host arbitration - docs/06: the law measures the class, the host
+         request is checked against it, and the piece takes the law's gate
+         either way. Claim check first, then the requested gate. *)
+      IF host_armed THEN
+        host_armed := FALSE;
+        host_acks := host_acks + 1;
+        ack_seq   := armed_seq;
+        ack_class := p_verdict[i];
+        ack_gate  := p_verdict[i];
+        ack_state := 1;
+        IF (armed_class <> 0) AND (armed_class <> p_verdict[i]) THEN
+          ack_state := 2;
+          host_vetoed := TRUE;
+        ELSIF (armed_code = 1) AND (armed_gate <> p_verdict[i]) THEN
+          ack_state := 2;
+          host_vetoed := TRUE;
+        END_IF;
+      END_IF;
     END_IF;
 
     (* end of belt without a divert - missed piece *)
@@ -402,7 +535,7 @@ END_IF;
 
 
 (* ==================================================================== *)
-(*  4 . diverters                                                        *)
+(*  5 . diverters                                                        *)
 (* ==================================================================== *)
 
 (* Each gate: arm the solenoid prearm_mm before the piece arrives, hold   *)
@@ -457,7 +590,7 @@ END_IF;
 
 
 (* ==================================================================== *)
-(*  5 . watchdogs                                                        *)
+(*  6 . watchdogs                                                        *)
 (* ==================================================================== *)
 
 IF state = 2 THEN
@@ -493,7 +626,7 @@ END_FOR;
 
 
 (* ==================================================================== *)
-(*  6 . alarm word                                                       *)
+(*  7 . alarm word                                                       *)
 (* ==================================================================== *)
 
 alarm_w := WORD#0;
@@ -502,10 +635,13 @@ IF estop_latched THEN alarm_w := alarm_w OR WORD#2; END_IF;
 IF NOT estop_chain THEN alarm_w := alarm_w OR WORD#4; END_IF;
 IF stall_on THEN      alarm_w := alarm_w OR WORD#8; END_IF;
 IF tracker_full THEN  alarm_w := alarm_w OR WORD#16; END_IF;
+IF host_hb_seen AND (NOT host_live) THEN
+  alarm_w := alarm_w OR WORD#32;    (* host stale - only if it had been live *)
+END_IF;
 
 
 (* ==================================================================== *)
-(*  7 . OEE                                                              *)
+(*  8 . OEE                                                              *)
 (* ==================================================================== *)
 
 (* rolling pieces per minute from the 60 one-second buckets *)
@@ -539,11 +675,12 @@ q10 := REAL_TO_INT(qual * 1000.0);
 
 
 (* ==================================================================== *)
-(*  8 . outputs and telemetry                                            *)
+(*  9 . outputs and telemetry                                            *)
 (* ==================================================================== *)
 
 lamp_g := (state = 2) AND (alarm_w = WORD#0);
-lamp_a := (state = 1) OR (state = 0);
+lamp_a := (state = 1) OR (state = 0)
+       OR (host_hb_seen AND (NOT host_live));   (* host dropped: attention *)
 lamp_r := (state = 3) OR (state = 4);
 horn := horn_on;
 
@@ -566,7 +703,30 @@ IF hb_acc >= 1.0 THEN
 END_IF;
 
 state_w := state;
-version_w := 101;
+version_w := 120;
+
+(* host block telemetry: the wire view of the arbitration state *)
+host_n := 0;
+FOR i := 0 TO 15 DO
+  IF p_active[i] THEN host_n := host_n + 1; END_IF;
+END_FOR;
+in_flight_w := host_n;
+host_acks_w := host_acks;
+IF host_acks > 32000 THEN host_acks := 0; END_IF;
+
+host_state_w := WORD#0;
+IF host_armed THEN
+  host_state_w := host_state_w OR WORD#1;
+END_IF;
+IF host_live THEN
+  host_state_w := host_state_w OR WORD#2;
+END_IF;
+IF host_hb_seen AND (NOT host_live) THEN
+  host_state_w := host_state_w OR WORD#4;    (* fallback *)
+END_IF;
+IF host_vetoed THEN
+  host_state_w := host_state_w OR WORD#8;    (* veto-since-live *)
+END_IF;
 
 END_PROGRAM
 
