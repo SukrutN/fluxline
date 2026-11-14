@@ -31,6 +31,12 @@ date it shipped on `main` — not the date its work started.
   law-sorting, and the operator should know supervision dropped.
 - Commissioning §5: the master request pair staging the host block
   (read HR 28..44, write HR 45..51) and two new go-live checks.
+- `sim/hostbench.py`: a seeded offline bench — a scripted hosted shift
+  (20 pieces, 12 host releases, one veto) driven through the host block
+  model. Its figures, committed to `sim/figures/hostblock.json`, are the
+  release→divert latency histogram, the final register table and a
+  scan-ordered walkthrough; they are ported into the fluxline site,
+  where a test locks them. Deterministic: no wall clock, no RNG.
 
 ### Changed
 - Twin holding-register store widened 32 → 64 words so wire 28..51 is

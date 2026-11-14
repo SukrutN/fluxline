@@ -44,6 +44,8 @@ docs/05-architecture.md  state machine, drift immunity, scaling to more lanes
 docs/06-host-block.md    the supervisory host contract: registers, arbitration
 sim/twin.py              digital twin - Modbus slave with belt physics
 sim/hostblock.py         offline reference model of the host block
+sim/hostbench.py         seeded bench behind the site's hosted-line figures
+sim/figures/             the bench's committed output (hostblock.json)
 sim/scenarios.py         scripted runs (mixed batch, jam, E-stop)
 sim/test_scenarios.py    offline: the law itself
 sim/test_hostblock.py    offline: host block arbitration (deterministic ingest)

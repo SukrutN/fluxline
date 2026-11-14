@@ -18,6 +18,7 @@ from hostblock import (            # noqa: E402
     OVERRIDE, PER_LAW,
     INIT, IDLE, RUN, JAM, ESTOP,
 )
+import hostbench                  # noqa: E402
 
 
 def hb(t):
@@ -295,3 +296,31 @@ def test_in_flight_is_published():
     assert m.snapshot()["in_flight"] == 5
     m.scan(hb=hb(3), in_flight=0)
     assert m.snapshot()["in_flight"] == 0
+
+
+# --------------------------------------------------------------- the bench
+
+def test_bench_is_deterministic_and_honest():
+    """Same script, same figures - and the site ports exactly these."""
+    a = hostbench.bench()
+    b = hostbench.bench()
+    assert a == b, "the bench must be reproducible, not a dice roll"
+    # the figures the site locks to
+    assert a["meta"]["pieces"] == 20
+    assert a["meta"]["releases"] == 12
+    assert a["verdicts"] == {"accepted": 11, "vetoed": 1}
+    assert sum(x["count"] for x in a["latency"]["buckets"]) == 12
+    assert a["latency"]["min_ms"] == 4466.7
+    assert a["latency"]["max_ms"] == 8800.0
+    assert a["latency"]["mean_ms"] == 6808.3
+    # every released piece ends on the gate the law chose
+    for s in a["latency"]["samples"]:
+        assert s["state"] in ("accepted", "vetoed")
+        assert s["release_to_divert_ms"] > 0
+        if s["state"] == "accepted":
+            assert s["gate"] == s["ask"]
+    # the walkthrough stays scan-ordered and lands on real gates
+    ts = [w["t_s"] for w in a["walkthrough"]]
+    assert ts == sorted(ts)
+    assert any("VETOED" in w["what"] for w in a["walkthrough"])
+    assert len(a["registers"]) == 15
