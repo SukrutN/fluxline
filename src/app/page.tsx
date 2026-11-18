@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import LineSection from "@/components/LineSection";
 import Stations from "@/components/Stations";
 import LedgerSection from "@/components/LedgerSection";
+import HostedSection from "@/components/HostedSection";
 import UnitSection from "@/components/UnitSection";
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
       <LineSection />
       <Stations />
       <LedgerSection />
+      <HostedSection />
       <UnitSection />
     </main>
   );

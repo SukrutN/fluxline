@@ -688,6 +688,17 @@ body::after {
   margin-top: 8px;
 }
 
+/* ── hosted ─────────────────────────────────────────────────── */
+
+.hosted-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 48px;
+}
+.hosted-latency { grid-column: span 3; }
+.hosted-regs { grid-column: span 4; }
+.hosted-walk { grid-column: span 5; }
+
 /* ── unit / footer ──────────────────────────────────────────── */
 
 .manifesto p.big {
@@ -758,6 +769,7 @@ footer .mono small {
   .station { grid-column: span 6; }
   .oee-block, .lanes-block { grid-column: span 12; }
   .events-block { grid-column: span 12; }
+  .hosted-latency, .hosted-regs, .hosted-walk { grid-column: span 12; }
 }
 @media (max-width: 700px) {
   .station { grid-column: span 12; }

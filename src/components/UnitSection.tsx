@@ -1,4 +1,4 @@
-// 05 · UNIT — the operating rules & sign-off.
+// 06 · UNIT — the operating rules & sign-off.
 
 const SPECS: Array<[string, React.ReactNode]> = [
   [
@@ -37,7 +37,7 @@ export default function UnitSection() {
       <section id="unit" className="section">
         <div className="wide">
           <header className="chapter">
-            <span className="num">05</span>
+            <span className="num">06</span>
             <span className="label">UNIT</span>
             <span className="of">OPERATING RULES — REV 0.9</span>
           </header>

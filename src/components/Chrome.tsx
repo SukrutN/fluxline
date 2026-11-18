@@ -9,7 +9,8 @@ const CHAPTERS = [
   { id: "line", num: "02", label: "THE LINE" },
   { id: "stations", num: "03", label: "STATIONS" },
   { id: "ledger", num: "04", label: "LEDGER" },
-  { id: "unit", num: "05", label: "UNIT" },
+  { id: "hosted", num: "05", label: "HOSTED" },
+  { id: "unit", num: "06", label: "UNIT" },
 ];
 
 // ── wall clock ──────────────────────────────────────────────

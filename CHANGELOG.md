@@ -5,6 +5,22 @@ based on [Keep a Changelog](https://keepachangelog.com/), versions follow
 [Semantic Versioning](https://semver.org/), and a version's date is the
 date it shipped on `main` — not the date its work started.
 
+## [Unreleased]
+
+### Added
+- **05 · HOSTED** — the hosted line, chapter six of five: a supervisory
+  host asks for releases over Modbus and the verdict law keeps the last
+  word. The chapter shows the seeded bench's figures — the release→divert
+  latency histogram (12 releases, honest about the empty 7–8 s band),
+  the host command block's wire words at shift end, and a scan-by-scan
+  walkthrough of the veto (a tall piece asked for L01; the law takes it
+  to L03 anyway) and a clean ask the floor honored. The numbers are
+  ported verbatim from fluxline-plc's seeded bench
+  (`sim/figures/hostblock.json`) into `src/lib/hosted.ts` and locked by
+  `hosted.test.ts` (`npm test`, node's own runner): if the bench's
+  figures move, the page holds still until the port is deliberate.
+  The chapter rail and section numbering follow (UNIT is 06 now).
+
 ## [0.2.1] - 2026-10-20
 
 ### Fixed
