@@ -21,6 +21,9 @@ jobs:
       - name: Install (locked)
         run: npm ci
 
+      - name: Figure lock
+        run: npm run test
+
       - name: Lint (zero errors)
         run: npm run lint
 

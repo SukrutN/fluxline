@@ -1,6 +1,6 @@
 "use client";
 
-// 04 · LEDGER — OEE, sparkline, lane journal, event stream.
+// 04 · LEDGER. OEE, sparkline, lane journal, event stream.
 
 import { useEffect, useRef } from "react";
 import { telemetry, useLine, formatUptime } from "@/lib/sim/store";
@@ -11,10 +11,10 @@ const R = 78;
 const CIR = 2 * Math.PI * R;
 
 const LANE_ROWS: Array<{ lane: LaneId; label: string; sub: string }> = [
-  { lane: "lane1", label: "L01 — Approved", sub: "within every band" },
-  { lane: "lane2", label: "L02 — Steel Loop", sub: "ferrous tag present" },
-  { lane: "lane3", label: "L03 — Oversize", sub: "height ≥ 165 mm" },
-  { lane: "reject", label: "RJ — Reject", sub: "weight anomaly" },
+  { lane: "lane1", label: "L01. Approved", sub: "within every band" },
+  { lane: "lane2", label: "L02. Steel Loop", sub: "ferrous tag present" },
+  { lane: "lane3", label: "L03. Oversize", sub: "height ≥ 165 mm" },
+  { lane: "reject", label: "RJ. Reject", sub: "weight anomaly" },
 ];
 
 function pct(v: number): string {
@@ -68,7 +68,7 @@ export default function LedgerSection() {
 
         <div className="ledger-grid">
           <div className="oee-block" data-reveal>
-            <p className="metric-big">OEE — ROLLING SESSION</p>
+            <p className="metric-big">OEE. ROLLING SESSION</p>
             <div className="oee-ring">
               <svg viewBox="0 0 200 200" width="100%" height="100%" aria-hidden="true">
                 <circle cx="100" cy="100" r={R} fill="none" stroke="var(--rule)" strokeWidth="10" />
@@ -113,7 +113,7 @@ export default function LedgerSection() {
           </div>
 
           <div className="lanes-block" data-reveal>
-            <p className="metric-big">PIECES / ROLLING MINUTE — {snap.throughput}</p>
+            <p className="metric-big">PIECES / ROLLING MINUTE. {snap.throughput}</p>
             <div className="spark">
               <Spark data={snap.history.length ? snap.history : new Array(60).fill(0)} />
             </div>
@@ -137,7 +137,7 @@ export default function LedgerSection() {
           </div>
 
           <div className="events-block" data-reveal>
-            <p className="metric-big">EVENT JOURNAL — STREAMING</p>
+            <p className="metric-big">EVENT JOURNAL. STREAMING</p>
             <ul className="event-list">
               {snap.events.length === 0 && (
                 <li>

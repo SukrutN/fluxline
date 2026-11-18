@@ -1,6 +1,6 @@
 "use client";
 
-// 03 · STATIONS — the numbered sensor rolls.
+// 03 · STATIONS, the numbered sensor rolls.
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { telemetry, useLine } from "@/lib/sim/store";
@@ -20,7 +20,7 @@ const CARDS: Array<{
     num: "01",
     name: "Photo-Eye Signal",
     copy:
-      "An infrared beam crosses the belt. Break it and the piece gets named — FLX-0001, FLX-0002, all the way down. Nothing rides the line without a number.",
+      "An infrared beam crosses the belt. Break it and the piece gets named. FLX-0001, FLX-0002, all the way down. Nothing rides the line without a number.",
     rule: "SENSE · REGISTRY",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -38,7 +38,7 @@ const CARDS: Array<{
     num: "02",
     name: "Height Profile",
     copy:
-      "A light curtain sweeps the piece top to bottom. Anything past 165 mm is tall, and tall goes straight to the oversize lane — that rule beats everything after it.",
+      "A light curtain sweeps the piece top to bottom. Anything past 165 mm is tall, and tall goes straight to the oversize lane, that rule beats everything after it.",
     rule: "TALL → L03 OVERSIZE",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -113,7 +113,7 @@ export default function Stations() {
         <header className="chapter" data-reveal>
           <span className="num">03</span>
           <span className="label">STATIONS</span>
-          <span className="of">FOUR STATIONS — ONE PASS</span>
+          <span className="of">FOUR STATIONS. ONE PASS</span>
         </header>
 
         <div className="station-grid">

@@ -1,4 +1,4 @@
-// 06 · UNIT — the operating rules & sign-off.
+// 06 · UNIT, the operating rules & sign-off.
 
 const SPECS: Array<[string, React.ReactNode]> = [
   [
@@ -11,7 +11,7 @@ const SPECS: Array<[string, React.ReactNode]> = [
   ],
   [
     "ACTUATE",
-    "Four diverters with pre-open lead logic — a gate opens before the piece reaches it, never while it passes.",
+    "Four diverters with pre-open lead logic, a gate opens before the piece reaches it, never while it passes.",
   ],
   [
     "FAIL SAFELY",
@@ -23,11 +23,11 @@ const SPECS: Array<[string, React.ReactNode]> = [
   ],
   [
     "STACK",
-    "Next.js · React · Canvas 2D · GSAP ScrollTrigger · Lenis. No backend, no keys, no accounts — one page, fully client-side.",
+    "Next.js · React · Canvas 2D · GSAP ScrollTrigger · Lenis. No backend, no keys, no accounts, one page, fully client-side.",
   ],
   [
     "PHASE 02",
-    "The OpenPLC program — real ladder logic for OpenPLC Runtime, exported to its own repository. The web line is its storyboard.",
+    "The OpenPLC program, real ladder logic for OpenPLC Runtime, exported to its own repository. The web line is its storyboard.",
   ],
 ];
 
@@ -39,7 +39,7 @@ export default function UnitSection() {
           <header className="chapter">
             <span className="num">06</span>
             <span className="label">UNIT</span>
-            <span className="of">OPERATING RULES — REV 0.9</span>
+            <span className="of">OPERATING RULES. REV 0.9</span>
           </header>
 
           <div className="manifesto" style={{ maxWidth: 1180 }}>
@@ -71,9 +71,9 @@ export default function UnitSection() {
             </p>
           </div>
           <div className="mono" style={{ textAlign: "right", lineHeight: 2 }}>
-            <span>FLUXLINE&#174; — SMART SORTING LINE · LINE 01</span>
-            <small>PHASE 02 · OPENPLC RUNTIME LADDER — SEPARATE REPO, SHIP NEXT</small>
-            <small>&#169; 2026 — PLANT FLOOR EDITION</small>
+            <span>FLUXLINE&#174;. SMART SORTING LINE · LINE 01</span>
+            <small>PHASE 02 · OPENPLC RUNTIME LADDER. SEPARATE REPO, SHIP NEXT</small>
+            <small>&#169; 2026. PLANT FLOOR EDITION</small>
           </div>
         </div>
       </footer>

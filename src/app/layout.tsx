@@ -20,9 +20,9 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FLUXLINE\u00AE — Line 01 · Smart Sorting Systems",
+  title: "FLUXLINE\u00AE. Line 01 · Smart Sorting Systems",
   description:
-    "A 3-way sorting line simulated end to end in the browser — sensors, gates, faults and the running counts behind them. Made to sort. Built to last.",
+    "A 3-way sorting line simulated end to end in the browser, sensors, gates, faults and the running counts behind them. Made to sort. Built to last.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
