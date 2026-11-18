@@ -1,6 +1,6 @@
 "use client";
 
-// 02 · THE LINE — mounted simulation frame, controls, live captions.
+// 02 · THE LINE, mounted simulation frame, controls, live captions.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
@@ -71,7 +71,7 @@ export default function LineSection() {
       raf = requestAnimationFrame(loop);
       const dt = (now - last) / 1000;
       last = now;
-      // always tick the machine — counters and uptime must advance even when
+      // always tick the machine, counters and uptime must advance even when
       // the canvas is scrolled away (the ledger reads the same engine)
       engine.tick(dt);
       if (!visibleRef.current) return;
@@ -123,7 +123,7 @@ export default function LineSection() {
 
   // ── captions: idle rotation ticker ──────────────────────────
   // Ticks the idle caption rotation. The subscription runs at 1/7 Hz and
-  // only advances an index — the caption text itself is derived below, an
+  // only advances an index, the caption text itself is derived below, an
   // external system feeding React, not React mirroring itself in an
   // effect.
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function LineSection() {
   // every render, in strict priority order: a live FAULT takes the board,
   // the newest event holds it for 2.4 s, its tail stays on for 5 s, then
   // the idle rotation takes over. Deriving rather than mirroring the
-  // snapshot into state removes the setState-in-effect class of bugs —
+  // snapshot into state removes the setState-in-effect class of bugs . 
   // and with it, two effects that had to race for caption ownership.
   const shiny = snap.events[0];
   const ev = snap.events.find((e) => e.kind !== "INFO");
@@ -183,7 +183,7 @@ export default function LineSection() {
         <header className="chapter" data-reveal>
           <span className="num">02</span>
           <span className="label">THE LINE</span>
-          <span className="of">SRT·SEQ — {uptime}</span>
+          <span className="of">SRT·SEQ. {uptime}</span>
         </header>
 
         <div className="manifesto" style={{ maxWidth: "1100px" }} data-reveal>

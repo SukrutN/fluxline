@@ -1,8 +1,8 @@
 "use client";
 
-// 05 · HOSTED — a supervisor may ask; the floor's law keeps the last word.
+// 05 · HOSTED, a supervisor may ask; the floor's law keeps the last word.
 // Figures are ported from fluxline-plc's seeded bench and locked by
-// src/lib/hosted.test.ts — the page never invents a number.
+// src/lib/hosted.test.ts, the page never invents a number.
 
 import { useEffect, useRef } from "react";
 import { reveal } from "@/lib/scroll";
@@ -75,13 +75,13 @@ export default function HostedSection() {
         <header className="chapter" data-reveal>
           <span className="num">05</span>
           <span className="label">HOSTED</span>
-          <span className="of">A SUPERVISOR MAY ASK — THE FLOOR DECIDES</span>
+          <span className="of">THE HOST ASKS. THE LINE DECIDES</span>
         </header>
 
         <div className="manifesto" style={{ maxWidth: 980, marginBottom: "clamp(40px,6vw,80px)" }} data-reveal>
           <p className="big" style={{ fontSize: "clamp(30px,3.8vw,54px)" }}>
-            The warehouse host asks over Modbus.{" "}
-            <span className="accent">The verdict law keeps the last word, every piece, every time.</span>
+            The host asks over Modbus.{" "}
+            <span className="accent">The line decides which lane the piece takes.</span>
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export default function HostedSection() {
 
         <div className="hosted-grid">
           <div className="hosted-latency" data-reveal>
-            <p className="metric-big">RELEASE → DIVERT — {RELEASES} RELEASES</p>
+            <p className="metric-big">RELEASE → DIVERT. {RELEASES} RELEASES</p>
             <Histogram />
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginTop: 18 }}>
               {[
@@ -112,12 +112,12 @@ export default function HostedSection() {
             <p className="mono" style={{ color: "var(--muted-2)", marginTop: 22, fontSize: 10, lineHeight: 1.7 }}>
               ACCEPTED {VERDICTS.accepted} · VETOED {VERDICTS.vetoed} · REFUSED 0 · EXPIRED 0
               <br />
-              {bucketTotal(BUCKETS)} OF {RELEASES} PIECES BUCKETS — NONE EATEN
+              {bucketTotal(BUCKETS)} OF {RELEASES} PIECES BUCKETS. NONE EATEN
             </p>
           </div>
 
           <div className="hosted-regs lanes-block" data-reveal>
-            <p className="metric-big">HOST COMMAND BLOCK — WORDS AT SHIFT END</p>
+            <p className="metric-big">HOST COMMAND BLOCK. WORDS AT SHIFT END</p>
             {REGISTERS.map((r) => (
               <div className="lane-row" key={r.addr}>
                 <span>
@@ -133,7 +133,7 @@ export default function HostedSection() {
           </div>
 
           <div className="hosted-walk" data-reveal>
-            <p className="metric-big">SCAN BY SCAN — THE VETO, THEN THE ASK HONORED</p>
+            <p className="metric-big">SCAN BY SCAN. THE VETO, THEN THE ASK HONORED</p>
             <ul className="event-list">
               {WALKTHROUGH.map((w, i) => (
                 <li key={`${w.tS}-${i}`} className={i >= 5 ? "ok" : ""}>

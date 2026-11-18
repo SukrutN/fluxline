@@ -1,6 +1,6 @@
 "use client";
 
-// 01 · SIGNAL — hero, eyebrow, lede, marquee.
+// 01 · SIGNAL, hero, eyebrow, lede, marquee.
 // The entrance choreography is pure CSS (see globals.css) so it can never
 // freeze mid-state under background-tab throttling.
 
@@ -23,8 +23,8 @@ export default function Hero() {
       <div className="hero wide">
         <div className="eyebrow">
           <span className="mono">01 / SIGNAL</span>
-          <span className="mono">SMART SORTING LINE — WEB SANDBOX</span>
-          <span className="mono">EST. 2026 — REV 0.9</span>
+          <span className="mono">SMART SORTING LINE. WEB SANDBOX</span>
+          <span className="mono">EST. 2026. REV 0.9</span>
         </div>
 
         <h1 className="display">
@@ -57,7 +57,7 @@ export default function Hero() {
         <div className="track">
           {Array.from({ length: 2 }).map((_, dup) =>
             TICKER.concat(TICKER.slice(0, 4)).map((t, i) => (
-              <span key={dup * 100 + i}>{t} —</span>
+              <span key={dup * 100 + i}>{t} . </span>
             ))
           )}
         </div>
