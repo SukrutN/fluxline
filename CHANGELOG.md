@@ -62,5 +62,5 @@ date it shipped on `main` — not the date its work started.
   jam injection). GSAP-driven Lenis smooth scroll, Tailwind styling,
   live plant clock.
 
-Companion repo of [SukrutN/fluxline-plc](https://github.com/SukrutN/fluxline-plc)
+Companion repo of [the fluxline PLC program](https://github.com/SukrutN/fluxline/tree/main/engine)
 — the same line as a real OpenPLC program.
