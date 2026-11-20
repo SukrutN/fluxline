@@ -27,7 +27,7 @@ const SPECS: Array<[string, React.ReactNode]> = [
   ],
   [
     "PHASE 02",
-    "The OpenPLC program, real ladder logic for OpenPLC Runtime, exported to its own repository. The web line is its storyboard.",
+    "The OpenPLC program, real ladder logic for the OpenPLC Runtime, lives at engine/ in this repository. The web line is its storyboard.",
   ],
 ];
 
@@ -72,7 +72,7 @@ export default function UnitSection() {
           </div>
           <div className="mono" style={{ textAlign: "right", lineHeight: 2 }}>
             <span>FLUXLINE&#174;. SMART SORTING LINE · LINE 01</span>
-            <small>PHASE 02 · OPENPLC RUNTIME LADDER. SEPARATE REPO, SHIP NEXT</small>
+            <small>PHASE 02 · OPENPLC RUNTIME LADDER. ENGINE/ IN THIS REPOSITORY</small>
             <small>&#169; 2026. PLANT FLOOR EDITION</small>
           </div>
         </div>
