@@ -112,7 +112,7 @@ export default function HostedSection() {
             <p className="mono" style={{ color: "var(--muted-2)", marginTop: 22, fontSize: 10, lineHeight: 1.7 }}>
               ACCEPTED {VERDICTS.accepted} · VETOED {VERDICTS.vetoed} · REFUSED 0 · EXPIRED 0
               <br />
-              {bucketTotal(BUCKETS)} OF {RELEASES} PIECES BUCKETS. NONE EATEN
+              {bucketTotal(BUCKETS)} OF {RELEASES} RELEASES IN THE BUCKETS, NONE LOST
             </p>
           </div>
 

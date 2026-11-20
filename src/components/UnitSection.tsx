@@ -44,9 +44,9 @@ export default function UnitSection() {
 
           <div className="manifesto" style={{ maxWidth: 1180 }}>
             <p className="big">One rule runs the whole line.</p>
-            <p className="big">Read the piece. Pick the lane.</p>
             <p className="big">
-              Then <span style={{ fontStyle: "italic", color: "var(--muted-2)" }}>write it down.</span>
+              Read the piece, pick the lane, and the program{" "}
+              <span style={{ fontStyle: "italic", color: "var(--muted-2)" }}>writes it down.</span>
             </p>
           </div>
 

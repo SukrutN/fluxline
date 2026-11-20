@@ -38,7 +38,7 @@ const CARDS: Array<{
     num: "02",
     name: "Height Profile",
     copy:
-      "A light curtain sweeps the piece top to bottom. Anything past 165 mm is tall, and tall goes straight to the oversize lane, that rule beats everything after it.",
+      "A light curtain sweeps the piece top to bottom. Anything past 165 mm is tall, and tall goes straight to the oversize lane — that rule outranks all the others.",
     rule: "TALL → L03 OVERSIZE",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
