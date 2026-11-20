@@ -6,7 +6,7 @@ Live site: https://sukrutn.github.io/fluxline/
 
 A **3-way smart sorting line**, simulated end to end in the browser — four sensors, three gates, a reject chute, a watchdog and its own operating ledger. Presented as an editorial "machine brochure": warm paper, steel, signal amber, huge serif type, live plant clock.
 
-> Phase 01 of 02 — the **web line** (this repo). Phase 02 is the real **OpenPLC program** (ladder logic for OpenPLC Runtime, separate repository).
+> Phase 01 of 02 — the **web line** (this repo's front). Phase 02 is the real **OpenPLC program** (ladder logic for the OpenPLC Runtime) — it lives at [`engine/`](engine/) in this repository.
 
 **Made to sort. Built to last.**
 
@@ -60,4 +60,4 @@ Keyboard: `Space` start/halt · `X` E-STOP · `R` reset (while the line section 
 
 ## Phase 02 — the real controller
 
-The web line is the storyboard: same station IDs, same routing law, same fault semantics. The ladder program (OpenPLC Runtime targets) ships separately — the layout mirrors this engine `PE-01…LC-04 → RJ·L01·L02·L03` one-to-one. *(link lands here when the repo ships)*.
+The web line is the storyboard: same station IDs, same routing law, same fault semantics. The ladder program (OpenPLC Runtime targets) lives at [`engine/`](engine/) — the layout mirrors this engine `PE-01…LC-04 → RJ·L01·L02·L03` one-to-one, its offline twin tests run in this repo's CI, and its seeded bench prints the hosted-line figures this site renders.

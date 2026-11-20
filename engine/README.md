@@ -1,6 +1,6 @@
 # FLUXLINE — Line 01 · PLC Program
 
-[![CI](https://github.com/SukrutN/fluxline-plc/actions/workflows/ci.yml/badge.svg)](https://github.com/SukrutN/fluxline-plc/actions/workflows/ci.yml)
+[![CI](https://github.com/SukrutN/fluxline/actions/workflows/ci.yml/badge.svg)](https://github.com/SukrutN/fluxline/actions/workflows/ci.yml)
 
 The machine itself. IEC 61131-3 Structured Text for the
 [OpenPLC runtime](https://github.com/thiagoralves/OpenPLC_v3): a 3-way
@@ -8,10 +8,12 @@ conveyor sorting line with four sensors, three diverter gates, a reject
 chute, a jam watchdog, an E-stop state machine, continuous OEE accounting
 and a host command block a supervisory WCS can request releases through.
 
-Companion to [SukrutN/fluxline](https://github.com/SukrutN/fluxline) — the
-same line as an editorial web simulation (phase 1). This repo is the phase 2
-program that actually runs the line. Same geometry, same verdict law, same
-OEE math; one of them is a brochure, this one would be in a panel.
+Companion to the site at this repository's root
+([SukrutN/fluxline](https://github.com/SukrutN/fluxline)) — the
+same line as an editorial web simulation (phase 1). This engine, at
+`engine/`, is the phase 2 program that actually runs the line. Same
+geometry, same verdict law, same OEE math; one of them is a brochure,
+this one would be in a panel.
 
 ## The verdict law
 
@@ -55,8 +57,8 @@ sim/test_line.py         live: the runtime against the twin
 ## Quickstart
 
 ```bash
-git clone https://github.com/SukrutN/fluxline-plc.git
-cd fluxline-plc
+git clone https://github.com/SukrutN/fluxline.git
+cd fluxline/engine
 pip install -r sim/requirements.txt
 pytest sim/test_scenarios.py        # offline, passes without a PLC
 ```

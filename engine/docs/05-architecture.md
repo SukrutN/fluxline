@@ -91,8 +91,8 @@ change plus a commissioning re-check.
 
 ## Relationship to the web line
 
-`github.com/SukrutN/fluxline` (phase 1) is the same machine as an editorial
-web simulation — same geometry, same law, same OEE math, in TypeScript for
-demonstration. This repo is the machine itself. Phase 3 (planned): the web
-line reads this runtime's registers live over Modbus and becomes the actual
-operator dashboard for the PLC line.
+The site at this repository's root (phase 1) is the same machine as an
+editorial web simulation — same geometry, same law, same OEE math, in
+TypeScript for demonstration. This engine is the machine itself. Phase 3
+(planned): the web line reads this runtime's registers live over Modbus and
+becomes the actual operator dashboard for the PLC line.
