@@ -23,10 +23,10 @@ import {
 } from "./hosted.ts"
 
 /**
- * The site's half of the characterization contract. Every number here is
- * hard-coded against fluxline-plc's committed bench figures
- * (sim/figures/hostblock.json) — if the bench's reading moves, this test
- * holds the page still until the port is deliberately updated.
+ * The site's half of the characterization contract. The page reads the
+ * bench's committed figures (engine/sim/figures/hostblock.json) directly,
+ * and this test holds those figures still: if the bench's reading moves,
+ * the page moves with it, and this test says so out loud.
  */
 describe("hosted line figures", () => {
   it("carries the seeded shift's meta", () => {

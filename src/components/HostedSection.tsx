@@ -1,8 +1,8 @@
 "use client";
 
 // 05 · HOSTED, a supervisor may ask; the floor's law keeps the last word.
-// Figures are ported from fluxline-plc's seeded bench and locked by
-// src/lib/hosted.test.ts, the page never invents a number.
+// Figures are read from the program's seeded bench (engine/sim/figures)
+// and locked by src/lib/hosted.test.ts, the page never invents a number.
 
 import { useEffect, useRef } from "react";
 import { reveal } from "@/lib/scroll";
