@@ -1,3 +1,5 @@
+# One repo, one CI: the site's figure locks and build, the ST compile gate,
+# and the offline twin tests.
 name: ci
 
 on:
@@ -29,3 +31,38 @@ jobs:
 
       - name: Build (production, TypeScript included)
         run: npm run build
+
+  st-compile:
+    name: matiec compile check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build matiec (the compiler the OpenPLC runtime uses)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential autoconf
+          git clone --depth 1 https://github.com/beremiz/matiec.git /tmp/matiec
+          cd /tmp/matiec
+          ( ./autogen.sh || autoreconf -i )
+          ./configure
+          make -j2
+
+      - name: Compile fluxline.st
+        run: |
+          cd /tmp/matiec
+          ./iec2c "$GITHUB_WORKSPACE/engine/program/fluxline.st"
+          echo "ST compiles clean under matiec"
+
+  sim-offline:
+    name: offline twin tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r engine/sim/requirements.txt
+      - run: python -m pytest engine/sim/test_scenarios.py engine/sim/test_hostblock.py -v
