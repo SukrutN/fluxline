@@ -15,11 +15,14 @@ Endpoints:
   POST /v1/reset   a fresh block, registers back to boot
 """
 
+import hmac
 import json
 import os
 import sys
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -33,6 +36,114 @@ CODE_NAMES = {"release-override": 1, "per-law": 2}
 JOURNAL_CAP = 400
 
 PAGE_PATH = os.path.join(os.path.dirname(__file__), "web", "index.html")
+
+# ---- the operations shell: token, rate limit, body cap, metrics ----
+
+TOKEN = (os.environ.get("FLUXLINE_TOKEN") or "").strip() or None
+RATE_LIMIT = int(os.environ.get("FLUXLINE_RATE_LIMIT") or "600")
+MAX_BODY = int(os.environ.get("FLUXLINE_MAX_BODY") or str(1024 * 1024))
+PUBLIC_ROUTES = {"/health", "/ready", "/metrics", "/"}
+
+LATENCY_BUCKETS_MS = (1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000)
+
+
+class Metrics:
+    """The engine's work and its HTTP service, counted and rendered in
+    Prometheus text exposition format. One lock keeps it honest; the
+    control room is a single process, so no more machinery is needed."""
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._started = time.time()
+        self._requests = {}   # path|status -> count
+        self._latency = {}    # path -> [bucket counts..., sum, total]
+        self._refusals = {}   # reason -> count
+        self._scans = 0
+        self._benches = 0
+
+    def observed(self, path, status, elapsed_ms):
+        with self._lock:
+            key = path + "|" + str(status)
+            self._requests[key] = self._requests.get(key, 0) + 1
+            row = self._latency.setdefault(path, [0] * (len(LATENCY_BUCKETS_MS) + 2))
+            for i, bound in enumerate(LATENCY_BUCKETS_MS):
+                if elapsed_ms <= bound:
+                    row[i] += 1
+            row[len(LATENCY_BUCKETS_MS)] += int(elapsed_ms)
+            row[len(LATENCY_BUCKETS_MS) + 1] += 1
+
+    def refused(self, reason):
+        with self._lock:
+            self._refusals[reason] = self._refusals.get(reason, 0) + 1
+
+    def scans_run(self, count):
+        with self._lock:
+            self._scans += count
+
+    def bench_run(self):
+        with self._lock:
+            self._benches += 1
+
+    def render(self):
+        with self._lock:
+            out = []
+            out.append("# HELP fluxline_http_requests_total Requests served, by route and status.")
+            out.append("# TYPE fluxline_http_requests_total counter")
+            for key in sorted(self._requests):
+                path, status = key.split("|", 1)
+                out.append('fluxline_http_requests_total{path="%s",status="%s"} %d'
+                           % (path, status, self._requests[key]))
+            out.append("# HELP fluxline_http_request_latency_ms Request latency in milliseconds, by route.")
+            out.append("# TYPE fluxline_http_request_latency_ms histogram")
+            for path in sorted(self._latency):
+                row = self._latency[path]
+                for i, bound in enumerate(LATENCY_BUCKETS_MS):
+                    out.append('fluxline_http_request_latency_ms_bucket{path="%s",le="%s"} %d'
+                               % (path, bound, row[i]))
+                total = row[len(LATENCY_BUCKETS_MS) + 1]
+                out.append('fluxline_http_request_latency_ms_bucket{path="%s",le="+Inf"} %d' % (path, total))
+                out.append('fluxline_http_request_latency_ms_count{path="%s"} %d' % (path, total))
+                out.append('fluxline_http_request_latency_ms_sum{path="%s"} %d'
+                           % (path, row[len(LATENCY_BUCKETS_MS)]))
+            out.append("# HELP fluxline_refusals_total Requests refused at the gate, by reason.")
+            out.append("# TYPE fluxline_refusals_total counter")
+            for reason in sorted(self._refusals):
+                out.append('fluxline_refusals_total{reason="%s"} %d' % (reason, self._refusals[reason]))
+            out.append("# HELP fluxline_scans_total Scans run through the host block model.")
+            out.append("# TYPE fluxline_scans_total counter")
+            out.append("fluxline_scans_total %d" % self._scans)
+            out.append("# HELP fluxline_bench_runs_total Seeded shifts run.")
+            out.append("# TYPE fluxline_bench_runs_total counter")
+            out.append("fluxline_bench_runs_total %d" % self._benches)
+            out.append("# HELP fluxline_uptime_seconds Seconds this process has been serving.")
+            out.append("# TYPE fluxline_uptime_seconds gauge")
+            out.append("fluxline_uptime_seconds %.3f" % (time.time() - self._started))
+            return "\n".join(out) + "\n"
+
+
+METRICS = Metrics()
+
+
+class RateLimiter:
+    """Fixed one-minute window per client; honest and cheap."""
+
+    def __init__(self, limit):
+        self._limit = limit
+        self._lock = threading.Lock()
+        self._windows = {}
+
+    def allow(self, ip):
+        window = int(time.time() / 60)
+        with self._lock:
+            cell = self._windows.get(ip)
+            if cell is None or cell[0] != window:
+                self._windows[ip] = [window, 1]
+                return True
+            cell[1] += 1
+            return cell[1] <= self._limit
+
+
+LIMITER = RateLimiter(RATE_LIMIT)
 
 
 class Problem(Exception):
@@ -145,6 +256,7 @@ class Session:
             "alarmHostBit": snap["alarm_host_bit"],
             "armed": self.block.armed,
             "hostLive": self.block.live,
+            "hostSeen": self.block.hb_seen,
             "events": events,
             "journal": journal[:60],
         }
@@ -231,12 +343,35 @@ def scan_request(node):
 
 
 class ControlRoom(BaseHTTPRequestHandler):
-    """One handler, five routes, JSON in and JSON out."""
+    """One handler, seven routes, JSON in and JSON out."""
 
     def do_GET(self):  # noqa: N802 - BaseHTTPRequestHandler's naming
-        if self.path == "/health":
+        self._t0 = time.perf_counter()
+        path = urlparse(self.path).path
+        if self._refused(path):
+            return
+        if path == "/health":
             self.send_json(200, {"status": "up"})
-        elif self.path == "/":
+        elif path == "/ready":
+            try:
+                with open(PAGE_PATH, encoding="utf-8") as page:
+                    page.read()
+                ready = callable(hostbench.bench)
+            except OSError:
+                ready = False
+            if ready:
+                self.send_json(200, {"status": "ready", "floors": 1})
+            else:
+                self.send_json(503, {"status": "not-ready", "floors": 0})
+        elif path == "/metrics":
+            body = METRICS.render().encode("utf-8")
+            self.send_response(200)
+            self.send_header("content-type", "text/plain; version=0.0.4; charset=utf-8")
+            self.send_header("content-length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            self._observed(path, 200)
+        elif path == "/":
             try:
                 with open(PAGE_PATH, encoding="utf-8") as page:
                     body = page.read()
@@ -249,27 +384,35 @@ class ControlRoom(BaseHTTPRequestHandler):
             self.send_header("content-length", str(len(body.encode("utf-8"))))
             self.end_headers()
             self.wfile.write(body.encode("utf-8"))
-        elif self.path == "/v1/bench":
-            self.send_json(200, hostbench.bench())
+            self._observed(path, 200)
+        elif path == "/v1/bench":
+            figures = hostbench.bench()
+            METRICS.bench_run()
+            self.send_json(200, figures)
         else:
-            self.send_json(404, {"title": "No such route", "detail": self.path})
+            self.send_json(404, {"title": "No such route", "detail": path})
 
     def do_POST(self):  # noqa: N802
+        self._t0 = time.perf_counter()
+        path = urlparse(self.path).path
+        if self._refused(path):
+            return
         length = int(self.headers.get("content-length") or 0)
         body = self.rfile.read(length).decode("utf-8", "replace")
         try:
-            if self.path == "/v1/scan":
+            if path == "/v1/scan":
                 request = scan_request(read_request(body, {
                     "count", "state", "dropHeartbeat", "inFlight", "command", "lcClass"}))
                 events = SESSION.run_scans(request)
+                METRICS.scans_run(request["count"])
                 self.send_json(200, SESSION.reading(events))
-            elif self.path == "/v1/reset":
+            elif path == "/v1/reset":
                 read_request(body, {})
                 with SESSION.lock:
                     SESSION.reset()
                 self.send_json(200, SESSION.reading([]))
             else:
-                self.send_json(404, {"title": "No such route", "detail": self.path})
+                self.send_json(404, {"title": "No such route", "detail": path})
         except Problem as problem:
             self.send_json(400, {
                 "title": "The control room refused the request",
@@ -277,15 +420,62 @@ class ControlRoom(BaseHTTPRequestHandler):
                 "reasons": problem.reasons,
             })
 
-    def send_json(self, status, payload):
+    # ---- the shell ----
+
+    def _refused(self, path):
+        """The ops gate: body cap, rate limit, optional token. Returns True
+        when the refusal has already been sent."""
+        if path in PUBLIC_ROUTES:
+            return False
+        length = int(self.headers.get("content-length") or 0)
+        if length > MAX_BODY:
+            METRICS.refused("oversize")
+            self.send_json(413, {
+                "title": "The request body is too large",
+                "detail": "This engine accepts bodies up to %d bytes." % MAX_BODY,
+            })
+            return True
+        if not LIMITER.allow(self.client_address[0]):
+            METRICS.refused("rate")
+            self.send_json(429, {
+                "title": "Too many requests",
+                "detail": "This engine serves %d requests per client each minute." % RATE_LIMIT,
+            }, retry_after=60)
+            return True
+        if TOKEN is not None:
+            header = self.headers.get("authorization") or ""
+            expected = "Bearer " + TOKEN
+            if not hmac.compare_digest(header, expected):
+                METRICS.refused("auth")
+                self.send_json(401, {
+                    "title": "A token is required",
+                    "detail": "Send the engine's token as a Bearer authorization header.",
+                })
+                return True
+        return False
+
+    def _observed(self, path, status):
+        elapsed_ms = (time.perf_counter() - getattr(self, "_t0", time.perf_counter())) * 1000.0
+        METRICS.observed(path, status, elapsed_ms)
+        print(json.dumps({
+            "method": self.command,
+            "route": path,
+            "status": status,
+            "elapsedMs": round(elapsed_ms, 1),
+        }), flush=True)
+
+    def send_json(self, status, payload, retry_after=None):
         body = json.dumps(payload).encode("utf-8")
         self.send_response(status)
+        if retry_after is not None:
+            self.send_header("Retry-After", str(retry_after))
         self.send_header("content-type", "application/json")
         self.send_header("content-length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+        self._observed(urlparse(self.path).path, status)
 
-    def log_message(self, format, *args):  # keep the console quiet
+    def log_message(self, format, *args):  # structured lines replace this
         pass
 
 

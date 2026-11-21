@@ -170,3 +170,91 @@ def test_invalid_json_is_a_problem(base):
         assert failure.code == 400
         problem = json.loads(failure.read().decode("utf-8"))
     assert "not valid JSON" in problem["detail"]
+
+
+def test_metrics_are_served_in_prometheus_text(base):
+    with urllib.request.urlopen(base + "/health") as response:
+        assert response.status == 200
+    with urllib.request.urlopen(base + "/metrics") as response:
+        assert response.status == 200
+        assert "text/plain" in response.headers["content-type"]
+        body = response.read().decode("utf-8")
+    assert "# TYPE fluxline_http_requests_total counter" in body
+    assert "fluxline_http_requests_total{" in body
+    assert "fluxline_uptime_seconds" in body
+
+
+def test_readiness_reports_the_model(base):
+    with urllib.request.urlopen(base + "/ready") as response:
+        assert response.status == 200
+        body = json.loads(response.read().decode("utf-8"))
+    assert body["status"] == "ready"
+    assert body["floors"] == 1
+
+
+def test_a_token_locks_the_api_and_keeps_the_public_routes_open(base):
+    workbench.TOKEN = "sesame"
+    try:
+        request = urllib.request.Request(
+            base + "/v1/scan", data=json.dumps({"count": 1, "state": "RUN"}).encode("utf-8"),
+            headers={"content-type": "application/json"}, method="POST")
+        try:
+            urllib.request.urlopen(request)
+            raise AssertionError("the server should have refused")
+        except urllib.error.HTTPError as failure:
+            assert failure.code == 401
+            problem = json.loads(failure.read().decode("utf-8"))
+        assert "token" in problem["title"]
+
+        authorized = urllib.request.Request(
+            base + "/v1/scan", data=json.dumps({"count": 1, "state": "RUN"}).encode("utf-8"),
+            headers={"content-type": "application/json", "authorization": "Bearer sesame"},
+            method="POST")
+        with urllib.request.urlopen(authorized) as response:
+            assert response.status == 200
+
+        for open_route in ("/health", "/ready", "/metrics", "/"):
+            with urllib.request.urlopen(base + open_route) as response:
+                assert response.status == 200, open_route
+    finally:
+        workbench.TOKEN = None
+
+
+def test_the_rate_limit_refuses_with_retry_after(base):
+    original = workbench.LIMITER
+    workbench.LIMITER = workbench.RateLimiter(3)
+    try:
+        for _ in range(3):
+            status, _ = post(base, "/v1/scan", {"count": 1, "state": "RUN"})
+            assert status == 200
+        request = urllib.request.Request(
+            base + "/v1/scan", data=json.dumps({"count": 1, "state": "RUN"}).encode("utf-8"),
+            headers={"content-type": "application/json"}, method="POST")
+        try:
+            urllib.request.urlopen(request)
+            raise AssertionError("the server should have refused")
+        except urllib.error.HTTPError as failure:
+            assert failure.code == 429
+            assert int(failure.headers["Retry-After"]) > 0
+            problem = json.loads(failure.read().decode("utf-8"))
+        assert problem["title"] == "Too many requests"
+    finally:
+        workbench.LIMITER = original
+
+
+def test_an_oversize_body_is_refused_before_it_is_read(base):
+    original = workbench.MAX_BODY
+    workbench.MAX_BODY = 512
+    try:
+        request = urllib.request.Request(
+            base + "/v1/scan", data=b"x" * 2048,
+            headers={"content-type": "application/json"}, method="POST")
+        try:
+            urllib.request.urlopen(request)
+            raise AssertionError("the server should have refused")
+        except urllib.error.HTTPError as failure:
+            assert failure.code == 413
+            problem = json.loads(failure.read().decode("utf-8"))
+        assert problem["title"] == "The request body is too large"
+    finally:
+        workbench.MAX_BODY = original
