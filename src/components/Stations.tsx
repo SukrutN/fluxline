@@ -20,7 +20,7 @@ const CARDS: Array<{
     num: "01",
     name: "Photo-Eye Signal",
     copy:
-      "An infrared beam crosses the belt. Break it and the piece gets named. FLX-0001, FLX-0002, all the way down. Nothing rides the line without a number.",
+      "An infrared beam crosses the belt. When a piece breaks the beam, it receives a sequential identifier: FLX-0001, FLX-0002, and so on. Every piece on the line has one.",
     rule: "SENSE · REGISTRY",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -38,7 +38,7 @@ const CARDS: Array<{
     num: "02",
     name: "Height Profile",
     copy:
-      "A light curtain sweeps the piece top to bottom. Anything past 165 mm is tall, and tall goes straight to the oversize lane — that rule outranks all the others.",
+      "A light curtain scans the piece from top to bottom. Anything measuring past 165 mm in height is classified as tall and routed to the oversize lane. This rule takes priority over all others.",
     rule: "TALL → L03 OVERSIZE",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -55,7 +55,7 @@ const CARDS: Array<{
     num: "03",
     name: "Inductive Tag",
     copy:
-      "An eddy-current probe under the belt listens for ferrous signatures. If the reading comes back metal, the piece belongs to the steel loop.",
+      "An eddy-current probe under the belt detects ferrous material. If the probe returns a positive reading, the piece is routed to the steel loop.",
     rule: "TAGGED → L02 STEEL",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">
@@ -72,7 +72,7 @@ const CARDS: Array<{
     num: "04",
     name: "Load Cell Check",
     copy:
-      "Strain gauges hold the piece still and read its weight. Under 2 kg or over 12 kg counts as off-band, and off-band pieces never pass QC.",
+      "Strain gauges hold the piece stationary and measure its weight. Readings under 2 kg or over 12 kg are classified as off-band and routed to reject.",
     rule: "OUTLIER → REJECT",
     schem: (
       <svg viewBox="0 0 140 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" aria-hidden="true" className="schem">

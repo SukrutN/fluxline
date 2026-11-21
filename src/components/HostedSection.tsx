@@ -1,6 +1,6 @@
 "use client";
 
-// 05 · HOSTED, a supervisor may ask; the floor's law keeps the last word.
+// 05 · HOSTED. The host sends requests; the routing law governs the response.
 // Figures are read from the program's seeded bench (engine/sim/figures)
 // and locked by src/lib/hosted.test.ts, the page never invents a number.
 
@@ -75,13 +75,13 @@ export default function HostedSection() {
         <header className="chapter" data-reveal>
           <span className="num">05</span>
           <span className="label">HOSTED</span>
-          <span className="of">THE HOST ASKS. THE LINE DECIDES</span>
+          <span className="of">HOST REQUESTS AND LINE RESPONSES</span>
         </header>
 
         <div className="manifesto" style={{ maxWidth: 980, marginBottom: "clamp(40px,6vw,80px)" }} data-reveal>
           <p className="big" style={{ fontSize: "clamp(30px,3.8vw,54px)" }}>
-            The host asks over Modbus.{" "}
-            <span className="accent">The line decides which lane the piece takes.</span>
+            The host sends release requests over Modbus.{" "}
+            <span className="accent">The routing law determines which lane each piece takes.</span>
           </p>
         </div>
 
