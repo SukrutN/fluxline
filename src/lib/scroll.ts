@@ -1,13 +1,13 @@
 "use client";
 
-// FLUXLINE motion core — Lenis smooth scroll driven by the GSAP ticker,
+// FLUXLINE motion core: Lenis smooth scroll driven by the GSAP ticker,
 // plus the small reveal helpers sections share.
 
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 
-// registered at module load — effects run bottom-up and some sections
+// The plugin is registered at module load because effects run bottom-up and some sections
 // build ScrollTriggers before SmoothScroll's effect registers the plugin.
 gsap.registerPlugin(ScrollTrigger);
 
@@ -79,7 +79,7 @@ export function reveal(root: HTMLElement | null) {
   });
 
   // Refresh-safe reveal: transform-only (never opacity), so even a fully
-  // rAF-throttled/occluded tab can't hide content — worst case a card sits
+  // rAF-throttled/occluded tab can't hide content. Worst case a card sits
   // 26 px low until it settles. Floor: complete + clean on a timer too.
   const finalize = () => {
     const st = (tween as unknown as { scrollTrigger?: { kill(a?: boolean): void } }).scrollTrigger;

@@ -14,7 +14,7 @@ const CHAPTERS = [
 ];
 
 // ── wall clock ──────────────────────────────────────────────
-// The clock's hands belong to the platform, not to React state: the
+// The clock's hands belong to the platform rather than to React state: the
 // component subscribes to wall time via useSyncExternalStore instead of
 // running a timer that mirrors Date.now() into an effect. The snapshot is
 // cached so React sees a stable value between the 1 Hz ticks (a fresh

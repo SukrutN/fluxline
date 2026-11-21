@@ -1,6 +1,6 @@
 "use client";
 
-// FLUXLINE canvas renderer — draws the simulated line every frame.
+// FLUXLINE canvas renderer: draws the simulated line every frame.
 // Palette mirrors globals.css; the machine room is dark ink with paper pieces.
 
 import {
@@ -569,7 +569,7 @@ function drawHud(ctx: CanvasRenderingContext2D, eng: LineEngine, m: Metrics) {
   const status = eng.estopped
     ? "E-STOP LATCHED"
     : eng.jammed
-      ? "JAM — " + eng.jamLabel
+      ? "JAM: " + eng.jamLabel
       : eng.running
         ? "LINE RUNNING"
         : "LINE IDLE";

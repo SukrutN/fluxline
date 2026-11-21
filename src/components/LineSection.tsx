@@ -188,8 +188,8 @@ export default function LineSection() {
 
         <div className="manifesto" style={{ maxWidth: "1100px" }} data-reveal>
           <p className="big" style={{ fontSize: "clamp(34px,4.6vw,66px)" }}>
-            The belt reads each piece once.{" "}
-            <span className="accent">The gates don&apos;t ask twice.</span>
+            Each piece is profiled once, in a single pass.{" "}
+            <span className="accent">The routing verdict follows from that single reading.</span>
           </p>
         </div>
 

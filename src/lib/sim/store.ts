@@ -1,6 +1,6 @@
 "use client";
 
-// FLUXLINE telemetry store — a tiny external store bridging the sim engine
+// FLUXLINE telemetry store: a tiny external store bridging the sim engine
 // (60 Hz canvas) to React (≈8 Hz snapshots) without re-rendering the canvas.
 
 import { useSyncExternalStore } from "react";

@@ -44,9 +44,9 @@ export default function Hero() {
           <p>
             A 3-way sorting line you can run right now. Four sensors profile
             every piece in a single pass, then the gates route it: tall to
-            oversize, ferrous to the steel loop, off-weight to reject. It all
-            lives in the browser. The PLC program lives at engine/ in this
-            repository.
+            oversize, ferrous to the steel loop, off-weight to reject. The
+            entire simulation runs in the browser, and the PLC program is in
+            the engine/ directory of this repository.
           </p>
           <button className="cta" onClick={() => scrollToId("line")}>
             RUN THE LINE ↓

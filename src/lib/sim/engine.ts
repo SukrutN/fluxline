@@ -1,5 +1,5 @@
 // FLUXLINE · single-pass line simulation
-// Fixed-step deterministic sorter. Client-side only — no backend, no persistence.
+// Fixed-step deterministic sorter. Client-side only: no backend, no persistence.
 //
 // Routing verdict (fixed law, decided at LC-04):
 //   tall profile            -> L03 OVERSIZE
@@ -136,7 +136,7 @@ export class LineEngine {
     this.spawn(0.32, "tall", true);
     this.spawn(0.60, "metal", true);
     this.spawn(0.76, "offspec", true);
-    this.log("INFO", "OPS", "line mounted — gates armed");
+    this.log("INFO", "OPS", "line mounted: gates armed");
   }
 
   wirePublish(fn: () => void) {
@@ -150,14 +150,14 @@ export class LineEngine {
     if (this.running) return;
     this.running = true;
     this.everStarted = true;
-    this.log("OK", "OPS", "line start — gates armed");
+    this.log("OK", "OPS", "line start: gates armed");
     this.publish();
   }
 
   stop() {
     if (!this.running) return;
     this.running = false;
-    this.log("INFO", "OPS", "line stopped — belt drains");
+    this.log("INFO", "OPS", "line stopped: belt drains");
     this.publish();
   }
 
@@ -171,7 +171,7 @@ export class LineEngine {
     this.estopped = true;
     this.jammed = false;
     this.jamLabel = "";
-    this.log("FAULT", "SAF", "E-STOP latched — all axes halted");
+    this.log("FAULT", "SAF", "E-STOP latched: all axes halted");
     this.publish();
   }
 
@@ -181,7 +181,7 @@ export class LineEngine {
     this.jammed = false;
     this.jamTimer = 0;
     this.jamLabel = "";
-    this.log("OK", "OPS", "faults cleared — line resuming");
+    this.log("OK", "OPS", "faults cleared: line resuming");
     this.publish();
   }
 
@@ -197,7 +197,7 @@ export class LineEngine {
 
   injectDefect() {
     this.defectQueue += 3;
-    this.log("INFO", "QC", "test pieces queued — offspec profile");
+    this.log("INFO", "QC", "test pieces queued: offspec profile");
     this.publish();
   }
 
@@ -208,7 +208,7 @@ export class LineEngine {
     this.jammed = true;
     this.jamLabel = st.label;
     this.jamTimer = 0;
-    this.log("FAULT", st.id, "JAM — material obstructed under " + st.label);
+    this.log("FAULT", st.id, "JAM: material obstructed under " + st.label);
     this.publish();
   }
 
@@ -305,7 +305,7 @@ export class LineEngine {
       this.log(
         "WARN",
         "WDOG",
-        "heartbeat stale " + (gap / 1000).toFixed(1) + " s — re-synced"
+        "heartbeat stale " + (gap / 1000).toFixed(1) + " s: re-synced"
       );
     }
     this.lastTickWall = nowWall;
@@ -389,7 +389,7 @@ export class LineEngine {
         this.jammed = false;
         this.jamLabel = "";
         this.estopped = true;
-        this.log("FAULT", "WDOG", "obstruction unresolved — watchdog tripped E-STOP");
+        this.log("FAULT", "WDOG", "obstruction unresolved: watchdog tripped E-STOP");
       }
     }
 
@@ -468,9 +468,9 @@ export class LineEngine {
         const tall = item.hMm >= 165;
         this.reads.HS = item.hMm.toFixed(0) + " MM";
         if (tall) {
-          this.log("WARN", "HS-02", tag4 + " height " + item.hMm.toFixed(0) + " mm — tall profile, oversize lane held");
+          this.log("WARN", "HS-02", tag4 + " height " + item.hMm.toFixed(0) + " mm: tall profile, oversize lane held");
         } else {
-          this.log("OK", "HS-02", tag4 + " height " + item.hMm.toFixed(0) + " mm — within band");
+          this.log("OK", "HS-02", tag4 + " height " + item.hMm.toFixed(0) + " mm: within band");
         }
         break;
       }
@@ -478,7 +478,7 @@ export class LineEngine {
         const metal = item.kind === "metal";
         this.reads.ID = metal ? "FERROUS TAG" : "NO TAG";
         if (metal) {
-          this.log("OK", "ID-03", tag4 + " inductive N-tag present — steel loop held");
+          this.log("OK", "ID-03", tag4 + " inductive N-tag present: steel loop held");
         }
         break;
       }
@@ -487,9 +487,9 @@ export class LineEngine {
         this.reads.LC = item.kg.toFixed(1) + " KG";
         item.lane = this.assignLane(item);
         if (bad) {
-          this.log("WARN", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg — out of band, sending to reject");
+          this.log("WARN", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg: out of band, sending to reject");
         } else {
-          this.log("OK", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg — routing to L0" + (item.lane === "lane1" ? "1" : item.lane === "lane2" ? "2" : "3"));
+          this.log("OK", "LC-04", tag4 + " load " + item.kg.toFixed(1) + " kg: routing to L0" + (item.lane === "lane1" ? "1" : item.lane === "lane2" ? "2" : "3"));
         }
         break;
       }

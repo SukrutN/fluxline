@@ -30,7 +30,7 @@ import {
  */
 describe("hosted line figures", () => {
   it("carries the seeded shift's meta", () => {
-    assert.equal(ENGINE, "sim/hostblock.py — offline reference model of the ST host block")
+    assert.equal(ENGINE, "sim/hostblock.py, the offline reference model of the ST host block")
     assert.equal(SCAN_MS, 100)
     assert.equal(BELT_MMS, 120)
     assert.equal(PIECES, 20)
