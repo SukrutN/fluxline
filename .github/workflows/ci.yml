@@ -74,4 +74,4 @@ jobs:
           python-version: "3.11"
 
       - run: pip install -r engine/sim/requirements.txt
-      - run: python -m pytest engine/sim/test_scenarios.py engine/sim/test_hostblock.py engine/sim/test_workbench.py -v
+      - run: python -m pytest engine/sim/test_scenarios.py engine/sim/test_hostblock.py engine/sim/test_workbench.py engine/sim/test_commissioning.py -v

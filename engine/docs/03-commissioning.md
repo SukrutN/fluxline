@@ -101,6 +101,40 @@ pytest sim/test_line.py -v          # live: needs runtime + twin running
 `test_line.py` skips with a clear reason when the runtime isn't up — CI and
 fresh clones never fail on a missing PLC.
 
+## 6b · The one-command software gate
+
+```bash
+python sim/commissioning.py                  # print the checklist record
+python sim/commissioning.py --out rec.json   # ...and file it
+```
+
+The gate walks section 8's checklist against the closed loop: it probes the
+version handshake, runs the batch / jam / chain scenarios (the same
+functions pytest runs), watches the heartbeat advance, and checks the
+downtime accounting through a stop/restart cycle. Each item prints
+**PASS** with its proof, or **FAIL** with what happened. The two physical
+items — real E-stop devices and guard doors — print **PHYSICAL** and stay
+open on purpose: software cannot sign those off, and a gate that pretended
+to would be lying about your line.
+
+Exit code 0 means the software path is commissioned. The gate refuses with
+the exact doc section that fixes it when the runtime isn't reachable —
+same contract as `test_line.py`.
+
+## 6c · Shift reports
+
+```bash
+python sim/shift_report.py --minutes 2 --out shift.json
+python sim/shift_report.py --check    # offline arithmetic self-check
+```
+
+Runs a scripted mixed shift against the closed loop and files the record a
+commissioning engineer keeps: run/down/idle seconds, the piece counters,
+availability / performance / quality / OEE, and the runtime's own registers
+beside them. The report **re-derives** availability from the state timeline
+and quality from the twin's ledger, then names any register that disagrees
+— a record that only parrots the PLC is not a record.
+
 ## 7 · Calibration (physical line)
 
 1. **Belt speed** — command 120 mm/s, measure actual travel with a tape over
