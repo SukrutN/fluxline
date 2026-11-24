@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
   basePath,
   devIndicators: false,
   images: { unoptimized: true },
+  env: {
+    // Exposed to the client so committed assets resolve under the Pages
+    // base path in production and at the root in local development.
+    NEXT_PUBLIC_BASE_PATH: basePath,
+  },
   experimental: {
     agentUpgrade: "security",
   },
