@@ -4,7 +4,9 @@
 // The entrance choreography is pure CSS (see globals.css) so it can never
 // freeze mid-state under background-tab throttling.
 
+import { useEffect, useRef } from "react";
 import { scrollToId } from "@/lib/scroll";
+import { asset } from "@/lib/asset";
 
 const TICKER = [
   "Photo-eye: OK",
@@ -26,10 +28,45 @@ const HERO_TAGS: Array<{ label: string; ok?: boolean; style: React.CSSProperties
   { label: "routed: steel loop", ok: true, style: { left: "76%", top: "52%", ["--d" as string]: "2.9s" } },
 ];
 
+// Browsers only autoplay muted video, and React's muted attribute does
+// not set the muted property, so the play is forced from the ref.
+function AmbientLoop() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    const tryPlay = () => {
+      v.play().catch(() => {});
+    };
+    if (v.readyState >= 2) tryPlay();
+    v.addEventListener("canplay", tryPlay);
+    return () => v.removeEventListener("canplay", tryPlay);
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      src={asset("/media/hero-loop.mp4")}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+    />
+  );
+}
+
 export default function Hero() {
   return (
     <div id="signal">
       <div className="hero wide">
+        <div className="background-container" aria-hidden="true">
+          <AmbientLoop />
+        </div>
+        <span className="radial-overlay" aria-hidden="true" />
+        <span className="gradient-overlay" aria-hidden="true" />
         <div className="hero-tags" aria-hidden="true">
           {HERO_TAGS.map((t) => (
             <span key={t.label} className={"hero-tag" + (t.ok ? " ok" : "")} style={t.style}>

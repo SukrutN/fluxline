@@ -77,6 +77,14 @@ The web line is the storyboard: same station IDs, same routing law, same fault s
   origin of overall equipment effectiveness (OEE = A × P × Q), the
   ledger's headline figure.
 
+## Media credits
+
+The hero's ambient video loop (`public/media/hero-loop.mp4`) and the
+ledger scene file (`public/scene/ledger-scene.riv`) originate from
+ethiack.com and are included here for demonstration purposes; all rights
+remain with their originator. The scene file is currently unreferenced
+by the code.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
